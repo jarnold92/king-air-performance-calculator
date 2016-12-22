@@ -1,0 +1,9 @@
+
+*.exe
+*.pdb
+*.sln
+*.suo
+*.user
+
+King Air C90GTi/bin/
+King Air C90GTi/obj/
