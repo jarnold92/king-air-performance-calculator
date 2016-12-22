@@ -23,8 +23,7 @@ The instructor who worked with the student thought the software would be very be
 * Visual Studio 2015
 
 ### Deployment Location
-* network shared folder: enterprise.aero.und.edu\www\aaic.aero.und.edu 
-* pull updates using Git
+* a .exe file is distributed to the users of the software that they copy to their desktop
 
 ### Setup/Installation
 1. Build Application using Visual Studio
