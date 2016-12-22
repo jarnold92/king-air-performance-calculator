@@ -16,6 +16,10 @@ The instructor who worked with the student thought the software would be very be
 * Platform: Windows Desktop
 * Main Technologies: Winforms VB.NET
 
+### Other Notes
+* To change the server in the project: In lines 9 and 5378, replace the URL with the URL of the new server.
+* The default password for the settings of the software is: kingair123
+
 ### Dependencies
 * [ASN / King Air Server] (http://git1.aero.und.edu/asn/king-air-server/)  used for weight and balance calculation data
 
