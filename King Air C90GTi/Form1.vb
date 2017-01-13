@@ -6,7 +6,11 @@ Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         WebLoadData()
         WebBrowser7.Tag = 1
-        WebBrowser7.Navigate("http://kingair.net16.net/kingair/file.php")
+        WebBrowser7.Navigate("http://nodejs1.aero.und.edu/king-air-server")
+
+        'display version
+        lblVersion.Text = "Version: " & Application.ProductVersion
+
     End Sub
 
 #Region " Variables "
@@ -5375,7 +5379,7 @@ Public Class Form1
 #Region " Web Data "
 
     Public Sub WebLoadData()
-        Dim request As WebRequest = WebRequest.Create("http://kingair.net16.net/kingair/file.php")
+        Dim request As WebRequest = WebRequest.Create("http://nodejs1.aero.und.edu/king-air-server")
         request.Credentials = CredentialCache.DefaultCredentials
         Dim response As WebResponse = request.GetResponse()
         Dim dataStream As Stream = response.GetResponseStream()

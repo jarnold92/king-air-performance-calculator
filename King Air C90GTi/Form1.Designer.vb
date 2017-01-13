@@ -313,6 +313,7 @@ Partial Class Form1
         Me.LLabel1 = New System.Windows.Forms.Label()
         Me.LTextBox1 = New System.Windows.Forms.TextBox()
         Me.WebBrowser7 = New System.Windows.Forms.WebBrowser()
+        Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -3546,6 +3547,16 @@ Partial Class Form1
         Me.WebBrowser7.TabIndex = 35
         Me.WebBrowser7.Visible = False
         '
+        'lblVersion
+        '
+        Me.lblVersion.AutoSize = True
+        Me.lblVersion.BackColor = System.Drawing.Color.Transparent
+        Me.lblVersion.Location = New System.Drawing.Point(54, 452)
+        Me.lblVersion.Name = "lblVersion"
+        Me.lblVersion.Size = New System.Drawing.Size(42, 13)
+        Me.lblVersion.TabIndex = 36
+        Me.lblVersion.Text = "Version"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3553,6 +3564,7 @@ Partial Class Form1
         Me.BackgroundImage = Global.King_Air_C90GTi.My.Resources.Resources.Background_home
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
         Me.ClientSize = New System.Drawing.Size(800, 500)
+        Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.PanelSettings)
         Me.Controls.Add(Me.PanelWB)
         Me.Controls.Add(Me.WebBrowser7)
@@ -3946,4 +3958,5 @@ Partial Class Form1
     Friend WithEvents LButton3 As Button
     Friend WithEvents LButton2 As Button
     Friend WithEvents LListBox1 As ListBox
+    Friend WithEvents lblVersion As System.Windows.Forms.Label
 End Class
