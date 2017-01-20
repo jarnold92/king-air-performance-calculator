@@ -19,6 +19,7 @@ The instructor who worked with the student thought the software would be very be
 ### Other Notes
 * To change the server in the project: In lines 9 and 5378, replace the URL with the URL of the new server.
 * The default password for the settings of the software is: kingair123
+* The current version of the application is displayed on the lower left of the main form.  To update the version, right click on the project, select Properties, then click on the Assembly Information button on the Application tab to change both the Assembly and File version.  Build the solution to create the new .exe file.
 
 ### Dependencies
 * [ASN / King Air Server] (http://git1.aero.und.edu/asn/king-air-server/)  used for weight and balance calculation data
