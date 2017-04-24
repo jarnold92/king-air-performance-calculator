@@ -314,6 +314,9 @@ Partial Class Form1
         Me.LTextBox1 = New System.Windows.Forms.TextBox()
         Me.WebBrowser7 = New System.Windows.Forms.WebBrowser()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.TLabel6 = New System.Windows.Forms.Label()
+        Me.TBar5 = New System.Windows.Forms.Label()
+        Me.WebBrowser8 = New System.Windows.Forms.WebBrowser()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -2378,7 +2381,7 @@ Partial Class Form1
         Me.TLabel5.Cursor = System.Windows.Forms.Cursors.Hand
         Me.TLabel5.Font = New System.Drawing.Font("Candara", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TLabel5.ForeColor = System.Drawing.SystemColors.Control
-        Me.TLabel5.Location = New System.Drawing.Point(297, 85)
+        Me.TLabel5.Location = New System.Drawing.Point(305, 85)
         Me.TLabel5.Name = "TLabel5"
         Me.TLabel5.Size = New System.Drawing.Size(96, 23)
         Me.TLabel5.TabIndex = 17
@@ -3557,6 +3560,43 @@ Partial Class Form1
         Me.lblVersion.TabIndex = 36
         Me.lblVersion.Text = "Version"
         '
+        'TLabel6
+        '
+        Me.TLabel6.BackColor = System.Drawing.Color.Transparent
+        Me.TLabel6.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.TLabel6.Font = New System.Drawing.Font("Candara", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TLabel6.ForeColor = System.Drawing.SystemColors.Control
+        Me.TLabel6.Location = New System.Drawing.Point(204, 85)
+        Me.TLabel6.Name = "TLabel6"
+        Me.TLabel6.Size = New System.Drawing.Size(96, 23)
+        Me.TLabel6.TabIndex = 36
+        Me.TLabel6.Text = "LOAD NEXT LEG"
+        Me.TLabel6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.TLabel6.Visible = False
+        '
+        'TBar5
+        '
+        Me.TBar5.AutoSize = True
+        Me.TBar5.BackColor = System.Drawing.Color.Transparent
+        Me.TBar5.Font = New System.Drawing.Font("Candara", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TBar5.ForeColor = System.Drawing.SystemColors.Control
+        Me.TBar5.Location = New System.Drawing.Point(300, 89)
+        Me.TBar5.Name = "TBar5"
+        Me.TBar5.Size = New System.Drawing.Size(11, 15)
+        Me.TBar5.TabIndex = 37
+        Me.TBar5.Text = "I"
+        Me.TBar5.Visible = False
+        '
+        'WebBrowser8
+        '
+        Me.WebBrowser8.Location = New System.Drawing.Point(194, 469)
+        Me.WebBrowser8.MinimumSize = New System.Drawing.Size(20, 20)
+        Me.WebBrowser8.Name = "WebBrowser8"
+        Me.WebBrowser8.ScriptErrorsSuppressed = True
+        Me.WebBrowser8.Size = New System.Drawing.Size(20, 20)
+        Me.WebBrowser8.TabIndex = 38
+        Me.WebBrowser8.Visible = False
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3565,6 +3605,10 @@ Partial Class Form1
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
         Me.ClientSize = New System.Drawing.Size(800, 500)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.TBar5)
+        Me.Controls.Add(Me.TBar4)
+        Me.Controls.Add(Me.WebBrowser8)
+        Me.Controls.Add(Me.TLabel6)
         Me.Controls.Add(Me.PanelSettings)
         Me.Controls.Add(Me.PanelWB)
         Me.Controls.Add(Me.WebBrowser7)
@@ -3601,7 +3645,6 @@ Partial Class Form1
         Me.Controls.Add(Me.TBar1)
         Me.Controls.Add(Me.TBar2)
         Me.Controls.Add(Me.TBar3)
-        Me.Controls.Add(Me.TBar4)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
@@ -3959,4 +4002,7 @@ Partial Class Form1
     Friend WithEvents LButton2 As Button
     Friend WithEvents LListBox1 As ListBox
     Friend WithEvents lblVersion As System.Windows.Forms.Label
+    Friend WithEvents TLabel6 As Label
+    Friend WithEvents TBar5 As Label
+    Friend WithEvents WebBrowser8 As WebBrowser
 End Class

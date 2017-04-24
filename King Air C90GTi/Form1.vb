@@ -130,7 +130,10 @@ Public Class Form1
     Public Shared EditedAirplanes() As String
     Public Shared EditedWeights() As String
     Public Shared EditedMoments() As String
-
+    Public Shared NextFlightPlanAvailable As Boolean = False
+    Public Shared FPSelected As Integer = 999999
+    Public Shared FPFlightplans As Integer = 999999
+    Public Shared SkipLogin As Boolean = False
 #End Region
 #Region " Move Form "
 
@@ -360,6 +363,10 @@ Public Class Form1
                 TLabel3.Text = "PRINT"
                 TLabel4.Text = "TOLD CARD"
                 TLabel5.Text = "HOME"
+                If NextFlightPlanAvailable Then
+                    TLabel6.Visible = True
+                    TBar5.Visible = True
+                End If
         End Select
         CheckStatus()
 
@@ -369,9 +376,11 @@ Public Class Form1
         TLabel3.Visible = False
         TLabel4.Visible = False
         TLabel5.Visible = False
+        TLabel6.Visible = False
         TBar2.Visible = False
         TBar3.Visible = False
         TBar4.Visible = False
+        TBar5.Visible = False
     End Sub
 
     Public Sub ClearAllData()
@@ -475,6 +484,10 @@ Public Class Form1
         FPUserSelection = 999999
         ChangeToolbar(0)
         ResetLabelColors()
+        NextFlightPlanAvailable = False
+        FPSelected = 999999
+        FPFlightplans = 999999
+        SkipLogin = False
     End Sub
 
     Public Sub ResetPanelLayouts()
@@ -673,6 +686,15 @@ Public Class Form1
             AComboBox1.SelectedItem = AComboBox1.Items.Item(WBAircraft)
         End If
         MaximumFuel()
+        If SkipLogin Then
+            If ACheckData() Then
+                If CurrentToolbar = 0 Then ChangeToolbar(1)
+                ASaveData()
+                ACalculateData()
+                AShowData()
+                ResetLabelColors()
+            End If
+        End If
     End Sub
 
     Public Function ACheckData() As Boolean
@@ -826,6 +848,7 @@ Public Class Form1
     Private Sub AButton1_Click(sender As Object, e As EventArgs) Handles AButton1.Click
         If ACheckData() Then
             If CurrentToolbar = 0 Then ChangeToolbar(1)
+            If SkipLogin Then CompleteEverything = 0
             ASaveData()
             ACalculateData()
             AShowData()
@@ -960,10 +983,13 @@ Public Class Form1
         If UnitTakeoffAltitude = 2 Then
             BRadioButton2.Checked = True
             BTextBox5.Text = TakeoffAltimeterSetting
+        Else
+            BRadioButton1.Checked = True
+            BTextBox5.Text = ""
         End If
-        If UnitTakeoffTemperature = 2 Then BRadioButton4.Checked = True
-        If UnitTakeoffWeight = 2 Then BRadioButton6.Checked = True
-        If UnitTakeoffWind = 2 Then BRadioButton8.Checked = True
+        If UnitTakeoffTemperature = 2 Then BRadioButton4.Checked = True Else BRadioButton3.Checked = True
+        If UnitTakeoffWeight = 2 Then BRadioButton6.Checked = True Else BRadioButton5.Checked = True
+        If UnitTakeoffWind = 2 Then BRadioButton8.Checked = True Else BRadioButton7.Checked = True
     End Sub
 
     Public Function BCheckData() As Boolean
@@ -1844,10 +1870,13 @@ Public Class Form1
         If UnitLandingAltitude = 2 Then
             ERadioButton2.Checked = True
             ETextBox5.Text = LandingAltimeterSetting
+        Else
+            ERadioButton1.Checked = True
+            ETextBox5.Text = ""
         End If
-        If UnitLandingTemperature = 2 Then ERadioButton4.Checked = True
-        If UnitLandingWeight = 2 Then ERadioButton6.Checked = True
-        If UnitLandingWind = 2 Then ERadioButton8.Checked = True
+        If UnitLandingTemperature = 2 Then ERadioButton4.Checked = True Else ERadioButton3.Checked = True
+        If UnitLandingWeight = 2 Then ERadioButton6.Checked = True Else ERadioButton5.Checked = True
+        If UnitLandingWind = 2 Then ERadioButton8.Checked = True Else ERadioButton7.Checked = True
     End Sub
 
     Public Function ECheckData() As Boolean
@@ -2174,9 +2203,12 @@ Public Class Form1
         If UnitTakeoffAltitude = 2 Then
             CRadioButton2.Checked = True
             CTextBox4.Text = TakeoffAltimeterSetting
+        Else
+            CRadioButton1.Checked = True
+            CTextBox4.Text = ""
         End If
-        If UnitTakeoffTemperature = 2 Then CRadioButton4.Checked = True
-        If UnitTakeoffWeight = 2 Then CRadioButton6.Checked = True
+        If UnitTakeoffTemperature = 2 Then CRadioButton4.Checked = True Else CRadioButton3.Checked = True
+        If UnitTakeoffWeight = 2 Then CRadioButton6.Checked = True Else CRadioButton5.Checked = True
     End Sub
 
     Public Function CCheckData() As Boolean
@@ -2551,7 +2583,7 @@ Public Class Form1
             If CruiseTemperature <> 999999 Then DTextBox2.Text = CruiseTemperature
             If TakeoffWeight <> 999999 Then DTextBox3.Text = TakeoffWeight
         End If
-        If CruiseMode = 2 Then DRadioButton2.Checked = True
+        If CruiseMode = 2 Then DRadioButton2.Checked = True Else DRadioButton1.Checked = True
     End Sub
 
     Public Function DCheckData() As Boolean
@@ -4592,7 +4624,7 @@ Public Class Form1
             If fuel.Chars(1) = ">" Then
                 fuel = Microsoft.VisualBasic.Right(fuel, 3)
             End If
-            WBFuelUsed = CInt(fuel) + 60
+            WBFuelUsed = CInt(fuel)
 
             WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
             WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
@@ -4726,6 +4758,20 @@ Public Class Form1
                 Dim theElementCollection As HtmlElementCollection
                 theElementCollection = WebBrowser1.Document.GetElementsByTagName("input")
                 IProgressBar1.Visible = True
+                TakeoffPerformanceFormStatus = 0
+                ClimbPerformanceFormStatus = 0
+                CruisePerformanceFormStatus = 0
+                LandingPerformanceFormStatus = 0
+                WBFormStatus = 0
+                SkipLogin = False
+                ChangeToolbar(1)
+                FPSelected = IListBox1.SelectedIndex
+                FPFlightplans = IListBox1.Items.Count
+                If IListBox1.SelectedIndex = IListBox1.Items.Count - 1 Then
+                    NextFlightPlanAvailable = False
+                Else
+                    NextFlightPlanAvailable = True
+                End If
                 For Each planElement As HtmlElement In theElementCollection
                     If planElement.GetAttribute("type") = "radio" Then
                         If i = 2 Then
@@ -4751,11 +4797,19 @@ Public Class Form1
 
     Public Sub ICheckComplete()
         If WebBrowser2.Tag + WebBrowser3.Tag + WebBrowser4.Tag + WebBrowser5.Tag + WebBrowser6.Tag = 5 Then
-            IProgressBar1.PerformStep()
-            IProgressBar1.Visible = False
+            If SkipLogin = False Then
+                IProgressBar1.PerformStep()
+                IProgressBar1.Visible = False
+            Else
+                TLabel6.Text = "LOAD NEXT LEG"
+                Me.Cursor = Cursors.Default
+            End If
+            CompleteEverything = 0
             MainSelectionChange(10)
         Else
-            IProgressBar1.PerformStep()
+            If SkipLogin = False Then
+                IProgressBar1.PerformStep()
+            End If
         End If
     End Sub
 
@@ -5375,6 +5429,19 @@ Public Class Form1
     End Sub
 
 #End Region
+#Region " Load Next Leg "
+
+    Private Sub TLabel6_Click(sender As Object, e As EventArgs) Handles TLabel6.Click
+        WBFuelLoad = WBFuelLoad - WBFuelUsed
+        SkipLogin = True
+        WebBrowser8.Tag = 1
+        TLabel6.Text = "LOADING..."
+        Me.Cursor = Cursors.WaitCursor
+        WebBrowser8.Navigate("http://fltplan2.com")
+    End Sub
+
+
+#End Region
 
 #Region " Web Data "
 
@@ -5408,6 +5475,130 @@ Public Class Form1
             End If
         Next
     End Sub
+
+    Private Sub WebBrowser8_DocumentCompleted(sender As Object, e As WebBrowserDocumentCompletedEventArgs) Handles WebBrowser8.DocumentCompleted
+        If WebBrowser8.Tag = 1 Then
+            Dim theElementCollection As HtmlElementCollection
+            theElementCollection = WebBrowser8.Document.GetElementsByTagName("input")
+            For Each curElement As HtmlElement In theElementCollection
+                Dim controlName As String = curElement.GetAttribute("name").ToString
+                If controlName = "USERNAME" Then
+                    curElement.SetAttribute("VALUE", FPUsername)
+                ElseIf controlName = "PASSWORD" Then
+                    curElement.SetAttribute("VALUE", FPPassword)
+                End If
+            Next
+            For Each curElement As HtmlElement In theElementCollection
+                If curElement.GetAttribute("VALUE").Equals("ENTER") Then
+                    curElement.InvokeMember("CLICK")
+                    Exit For
+                End If
+            Next
+            WebBrowser8.Tag = 2
+        ElseIf WebBrowser8.Tag = 2 Then
+            Dim i As Integer = 1
+            Dim n As Integer = 1
+            Dim x As Integer = FPSelected + 2
+            Dim theElementCollection As HtmlElementCollection
+            theElementCollection = WebBrowser8.Document.GetElementsByTagName("input")
+            TakeoffPerformanceFormStatus = 0
+            ClimbPerformanceFormStatus = 0
+            CruisePerformanceFormStatus = 0
+            LandingPerformanceFormStatus = 0
+            WBFormStatus = 0
+            ChangeToolbar(1)
+            FPSelected = FPSelected + 1
+            If FPSelected = FPFlightplans - 1 Then
+                NextFlightPlanAvailable = False
+            Else
+                NextFlightPlanAvailable = True
+            End If
+            For Each planElement As HtmlElement In theElementCollection
+                If planElement.GetAttribute("type") = "radio" Then
+                    If i = 2 Then
+                        If n = x Then
+                            WebBrowser8.Tag = 3
+                            planElement.InvokeMember("click")
+                            n += 1
+                        Else
+                            n += 1
+                        End If
+                        i += 1
+                    ElseIf i = 5 Then
+                        i = 1
+                    Else
+                        i += 1
+                    End If
+                End If
+            Next
+        ElseIf WebBrowser8.Tag = 3 Then
+            Dim planText As String = WebBrowser8.DocumentText
+            Dim altitude As String
+            Dim temperature() As String
+            Dim elevation As String
+            Dim fuel As String = ""
+            Dim Wfuel() As String
+            Dim plane() As String = Microsoft.VisualBasic.Split(planText, "cellpadding=1><TR><TD><center><B><font color=black size=-1>")
+            Dim airplane As String
+            FPDep = Mid(planText, InStr(planText, "Dep: ", CompareMethod.Binary) + 41, 4)
+            FPDes = Mid(planText, InStr(planText, "Dest: ", CompareMethod.Binary) + 42, 4)
+            FPETD = CInt(Mid(planText, InStr(planText, "Z</B></TD><TD><center>", CompareMethod.Binary) - 4, 4))
+            FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
+            If plane(1)(5) = "<" Then
+                airplane = Mid(plane(1), 1, 5)
+            Else
+                airplane = Mid(plane(1), 1, 6)
+            End If
+            WBAircraft = Array.IndexOf(Airplanes, airplane)
+            altitude = Mid(planText, InStr(planText, "0</B></center>", CompareMethod.Binary) - 5, 6)
+            If Microsoft.VisualBasic.Left(altitude, 1) = ">" Then
+                If Microsoft.VisualBasic.Left(altitude, 2) = ">F" Then
+                    CruiseAltitude = 100 * CInt(Microsoft.VisualBasic.Right(altitude, 3))
+                Else
+                    CruiseAltitude = 1000 * CInt(Mid(altitude, 2, 1))
+                End If
+            Else
+                CruiseAltitude = 1000 * CInt(Mid(altitude, 1, 2))
+            End If
+
+            temperature = Split(planText, " &nbsp; ")
+            If temperature(5) <> "N/A" Then
+                CruiseTemperature = CInt(Microsoft.VisualBasic.Left(temperature(5), 3))
+            ElseIf temperature(5) = "N/A" Then
+                CruiseTemperature = CInt(Microsoft.VisualBasic.Left(temperature(3), 3))
+            End If
+            Console.WriteLine("done")
+            UnitTakeoffAltitude = 2
+            TakeoffAltitude = CInt(Mid(planText, InStr(planText, "Elev:", CompareMethod.Binary) + 5, 4))
+            UnitLandingAltitude = 2
+            elevation = Mid(planText, InStr(planText, "EL:", CompareMethod.Binary) + 3, 4)
+
+            While IsNumeric(elevation) = False
+                elevation = Mid(elevation, 1, Len(elevation) - 1)
+            End While
+            LandingAltitude = CInt(elevation)
+
+            Wfuel = Split(planText, " Lbs")
+            If Wfuel.Length = 4 Then
+                fuel = Mid(planText, InStr(planText, " Lbs", CompareMethod.Binary) - 5, 5)
+            ElseIf Wfuel.Length = 5 Then
+                fuel = Microsoft.VisualBasic.Right(Wfuel(1), 5)
+            End If
+            If fuel.Chars(1) = ">" Then
+                fuel = Microsoft.VisualBasic.Right(fuel, 3)
+            End If
+            WBFuelUsed = CInt(fuel)
+
+            WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
+            WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
+            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+            WebBrowser5.Navigate("http://www.airnav.com/airport/" + FPDep)
+            WebBrowser6.Navigate("http://www.airnav.com/airport/" + FPDes)
+
+        End If
+    End Sub
+
+
 
 #End Region
 End Class
