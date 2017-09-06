@@ -4573,13 +4573,14 @@ Public Class Form1
             Dim altitude As String
             Dim temperature() As String
             Dim elevation As String
+            Dim elevations() As String
             Dim fuel As String = ""
             Dim Wfuel() As String
-            Dim plane() As String = Microsoft.VisualBasic.Split(planText, "cellpadding=1><TR><TD><center><B><font color=black size=-1>")
+            Dim plane() As String = Microsoft.VisualBasic.Split(planText, "<TR><TD><center><font color=black size=-2>")
             Dim airplane As String
-            FPDep = Mid(planText, InStr(planText, "Dep: ", CompareMethod.Binary) + 41, 4)
-            FPDes = Mid(planText, InStr(planText, "Dest: ", CompareMethod.Binary) + 42, 4)
-            FPETD = CInt(Mid(planText, InStr(planText, "Z</B></TD><TD><center>", CompareMethod.Binary) - 4, 4))
+            FPDep = Mid(planText, InStr(planText, "Dep: ", CompareMethod.Binary) + 5, 4)
+            FPDes = Mid(planText, InStr(planText, "Dest: ", CompareMethod.Binary) + 6, 4)
+            FPETD = CInt(Mid(planText, InStr(planText, "Z</center></TD><TD><center>", CompareMethod.Binary) - 4, 4))
             FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
             If plane(1)(5) = "<" Then
                 airplane = Mid(plane(1), 1, 5)
@@ -4587,15 +4588,27 @@ Public Class Form1
                 airplane = Mid(plane(1), 1, 6)
             End If
             WBAircraft = Array.IndexOf(Airplanes, airplane)
-            altitude = Mid(planText, InStr(planText, "0</B></center>", CompareMethod.Binary) - 5, 6)
-            If Microsoft.VisualBasic.Left(altitude, 1) = ">" Then
-                If Microsoft.VisualBasic.Left(altitude, 2) = ">F" Then
-                    CruiseAltitude = 100 * CInt(Microsoft.VisualBasic.Right(altitude, 3))
+
+            Dim altitudeCheck As Integer
+            altitudeCheck = InStr(planText, "<TD><center><font color=black size=-2>FL", CompareMethod.Binary)
+            If altitudeCheck <> 0 Then
+                altitude = Mid(planText, InStr(planText, "<TD><center><font color=black size=-2>FL", CompareMethod.Binary) + 38, 5)
+                If Microsoft.VisualBasic.Right(altitude, 1) = "<" Then
+                    CruiseAltitude = 100 * CInt(Mid(altitude, 3, 2))
                 Else
-                    CruiseAltitude = 1000 * CInt(Mid(altitude, 2, 1))
+                    CruiseAltitude = 100 * CInt(Mid(altitude, 3, 3))
                 End If
             Else
-                CruiseAltitude = 1000 * CInt(Mid(altitude, 1, 2))
+                altitude = Mid(planText, InStr(planText, "0</center></TD><TD>&nbsp;", CompareMethod.Binary) - 5, 6)
+                If Microsoft.VisualBasic.Left(altitude, 1) = ">" Then
+                    If Microsoft.VisualBasic.Left(altitude, 2) = ">F" Then
+                        CruiseAltitude = 100 * CInt(Microsoft.VisualBasic.Right(altitude, 3))
+                    Else
+                        CruiseAltitude = 1000 * CInt(Mid(altitude, 2, 1))
+                    End If
+                Else
+                    CruiseAltitude = 1000 * CInt(Mid(altitude, 1, 2))
+                End If
             End If
 
             temperature = Split(planText, " &nbsp; ")
@@ -4606,9 +4619,11 @@ Public Class Form1
             End If
             Console.WriteLine("done")
             UnitTakeoffAltitude = 2
-            TakeoffAltitude = CInt(Mid(planText, InStr(planText, "Elev:", CompareMethod.Binary) + 5, 4))
+
+            elevations = Microsoft.VisualBasic.Split(planText, "Elev:")
+            TakeoffAltitude = CInt(Mid(elevations(1), 1, 4))
             UnitLandingAltitude = 2
-            elevation = Mid(planText, InStr(planText, "EL:", CompareMethod.Binary) + 3, 4)
+            elevation = Mid(elevations(2), 1, 4)
 
             While IsNumeric(elevation) = False
                 elevation = Mid(elevation, 1, Len(elevation) - 1)
@@ -4694,12 +4709,14 @@ Public Class Form1
         Dim n As Integer = 0
 
         numberOfPlans = Filter(webArray, "QC", True, CompareMethod.Binary)
-        detailsOfPlans = Filter(webArray, "<b>K", True, CompareMethod.Binary)
+        detailsOfPlans = Filter(webArray, "<u>K", True, CompareMethod.Binary)
         If numberOfPlans.Length = 0 Then
             IListBox1.Items.Add("No flight plans were found")
         End If
+
+        y = InStr(webText, "</thead>", CompareMethod.Binary)
         For Each planElement As String In detailsOfPlans
-            x = InStr(planElement, "<b>K", CompareMethod.Binary)
+            x = InStr(planElement, "<u>K", CompareMethod.Binary)
             IListView1.Items.Add(Mid(planElement, x + 3, 4))
 
             i += 1
@@ -4711,12 +4728,12 @@ Public Class Form1
                 End If
                 i = 0
 
-                y = InStr(webText, "</b></center></TD><TD><center>", CompareMethod.Binary)
-                Mid(webText, y, 2) = "xx"
+                y = InStr(y, webText, "</tr><tr class=""fpc5", CompareMethod.Binary)
+                'Mid(webText, y, 2) = "xx"
 
             Else
-                y = InStr(webText, "p><center>", CompareMethod.Binary)
-                planDate = Mid(webText, y + 10, 10)
+                y = InStr(y, webText, "><center>", CompareMethod.Binary)
+                planDate = Mid(webText, y + 9, 10)
 
                 Mid(webText, y, 2) = "xx"
                 If Microsoft.VisualBasic.Right(planDate, 1) = "<" Then
@@ -4724,16 +4741,16 @@ Public Class Form1
                 End If
                 FPDate = Microsoft.VisualBasic.Split(planDate)(1)
 
-                y = InStr(webText, "D ><center>", CompareMethod.Binary)
-                planDTime = Mid(webText, y + 11, 4)
+                y = InStr(y, webText, "<TD><center>", CompareMethod.Binary)
+                planDTime = Mid(webText, y + 12, 4)
                 Mid(webText, y, 2) = "xx"
 
-                y = InStr(webText, "</b></center></TD><TD><center>", CompareMethod.Binary)
-                planATime = Mid(webText, y + 30, 4)
+                y = InStr(y, webText, "<TD><center>", CompareMethod.Binary)
+                planATime = Mid(webText, y + 12, 4)
                 Mid(webText, y, 2) = "xx"
 
-                y = InStr(webText, "50> &nbsp;", CompareMethod.Binary)
-                planPlane = Mid(webText, y + 10, 6)
+                y = InStr(y, webText, "<TD width=50> &nbsp;", CompareMethod.Binary)
+                planPlane = Mid(webText, y + 20, 6)
                 Mid(webText, y, 2) = "xx"
                 If Microsoft.VisualBasic.Right(planPlane, 1) = "<" Then
                     planPlane = Mid(planPlane, 1, 5)
@@ -4773,7 +4790,7 @@ Public Class Form1
                     NextFlightPlanAvailable = True
                 End If
                 For Each planElement As HtmlElement In theElementCollection
-                    If planElement.GetAttribute("type") = "radio" Then
+                    If (planElement.GetAttribute("type") = "radio" Or planElement.GetAttribute("type") = "RADIO") Then
                         If i = 2 Then
                             If n = x Then
                                 WebBrowser1.Tag = 4
