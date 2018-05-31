@@ -4643,7 +4643,7 @@ Public Class Form1
 
             WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
             WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
-            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=low&fcst=06&region=all&layout=off")
             WebBrowser5.Navigate("http://www.airnav.com/airport/" + FPDep)
             WebBrowser6.Navigate("http://www.airnav.com/airport/" + FPDes)
 
@@ -4963,6 +4963,10 @@ Public Class Form1
         windText = Microsoft.VisualBasic.Split(windText, "</pre> <!-- raw data ends here -->")(0)
 
         For i As Integer = 2 To windText.Length
+            If n > 175 Then
+                Exit For
+            End If
+
             WAAirports(n) = Mid(windText, i, 3)
             WA12(n) = CInt(Mid(windText, i + 29, 3))
             WA18(n) = CInt(Mid(windText, i + 37, 3))
@@ -5623,7 +5627,7 @@ Public Class Form1
 
             WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
             WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
-            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=low&fcst=06&region=all&layout=off")
             WebBrowser5.Navigate("http://www.airnav.com/airport/" + FPDep)
             WebBrowser6.Navigate("http://www.airnav.com/airport/" + FPDes)
 
