@@ -4643,7 +4643,7 @@ Public Class Form1
 
             WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
             WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
-            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=low&fcst=06&region=all&layout=on&date=")
             WebBrowser5.Navigate("http://www.airnav.com/airport/" + FPDep)
             WebBrowser6.Navigate("http://www.airnav.com/airport/" + FPDes)
 
@@ -4800,7 +4800,7 @@ Public Class Form1
                                 n += 1
                             End If
                             i += 1
-                        ElseIf i = 5 Then
+                        ElseIf i = 6 Then
                             i = 1
                         Else
                             i += 1
@@ -4960,8 +4960,7 @@ Public Class Form1
         Dim windText As String = WebBrowser4.DocumentText
         Dim n As Integer = 0
         windText = Microsoft.VisualBasic.Split(windText, "FT  3000    6000    9000   12000   18000   24000  30000  34000  39000")(1)
-        windText = Microsoft.VisualBasic.Split(windText, "</pre> <!-- raw data ends here -->")(0)
-
+        windText = Microsoft.VisualBasic.Split(windText, "</pre>")(0)
         For i As Integer = 2 To windText.Length
             WAAirports(n) = Mid(windText, i, 3)
             WA12(n) = CInt(Mid(windText, i + 29, 3))
@@ -5143,7 +5142,7 @@ Public Class Form1
         Dim windText As String = reader.ReadToEnd
         Dim n As Integer = 0
         windText = Microsoft.VisualBasic.Split(windText, "FT  3000    6000    9000   12000   18000   24000  30000  34000  39000")(1)
-        windText = Microsoft.VisualBasic.Split(windText, "</pre> <!-- raw data ends here -->")(0)
+        windText = Microsoft.VisualBasic.Split(windText, "<!-- raw data ends here -->")(0)
 
         For i As Integer = 2 To windText.Length
             WAAirports(n) = Mid(windText, i, 3)
@@ -5623,7 +5622,7 @@ Public Class Form1
 
             WebBrowser2.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDep + "&format=raw&hours=0&taf=on&layout=off&date=0")
             WebBrowser3.Navigate("http://aviationweather.gov/metar/data?ids=" + FPDes + "&format=raw&hours=0&taf=on&layout=off&date=0")
-            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+            WebBrowser4.Navigate("http://aviationweather.gov/windtemp/data?level=low&fcst=06&region=all&layout=on&date=")
             WebBrowser5.Navigate("http://www.airnav.com/airport/" + FPDep)
             WebBrowser6.Navigate("http://www.airnav.com/airport/" + FPDes)
 
