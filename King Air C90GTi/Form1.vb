@@ -4707,6 +4707,7 @@ Public Class Form1
         Dim y As Integer
         Dim i As Integer = 0
         Dim n As Integer = 0
+        Dim planDateSplitCheck() As String
 
         numberOfPlans = Filter(webArray, "QC", True, CompareMethod.Binary)
         detailsOfPlans = Filter(webArray, "<u>K", True, CompareMethod.Binary)
@@ -4739,7 +4740,13 @@ Public Class Form1
                 If Microsoft.VisualBasic.Right(planDate, 1) = "<" Then
                     planDate = Mid(planDate, 1, 9)
                 End If
-                FPDate = Microsoft.VisualBasic.Split(planDate)(1)
+
+                planDateSplitCheck = Microsoft.VisualBasic.Split(planDate)
+                If (planDateSplitCheck.Length < 2) Then
+                    Exit For
+                End If
+
+                FPDate = planDateSplitCheck(1)
 
                 y = InStr(y, webText, "<TD><center>", CompareMethod.Binary)
                 planDTime = Mid(webText, y + 12, 4)
@@ -5135,14 +5142,14 @@ Public Class Form1
         response.Close()
         IProgressBar1.PerformStep()
         '---------------------------------------------------------------------------------------
-        request = WebRequest.Create("http://aviationweather.gov/windtemp/data?level=l&fcst=06&region=all&layout=off")
+        request = WebRequest.Create("http://aviationweather.gov/windtemp/data?level=low&fcst=06&region=all&layout=on&date=")
         response = request.GetResponse()
         dataStream = response.GetResponseStream()
         reader = New StreamReader(dataStream)
         Dim windText As String = reader.ReadToEnd
         Dim n As Integer = 0
         windText = Microsoft.VisualBasic.Split(windText, "FT  3000    6000    9000   12000   18000   24000  30000  34000  39000")(1)
-        windText = Microsoft.VisualBasic.Split(windText, "<!-- raw data ends here -->")(0)
+        windText = Microsoft.VisualBasic.Split(windText, "</pre>")(0)
 
         For i As Integer = 2 To windText.Length
             WAAirports(n) = Mid(windText, i, 3)
@@ -5540,7 +5547,7 @@ Public Class Form1
                             n += 1
                         End If
                         i += 1
-                    ElseIf i = 5 Then
+                    ElseIf i = 6 Then
                         i = 1
                     Else
                         i += 1
