@@ -4705,6 +4705,7 @@ Public Class Form1
         Dim planPlane As String = ""
         Dim x As Integer
         Dim y As Integer
+        Dim y_temp As Integer
         Dim i As Integer = 0
         Dim n As Integer = 0
         Dim planDateSplitCheck() As String
@@ -4729,7 +4730,12 @@ Public Class Form1
                 End If
                 i = 0
 
-                y = InStr(y, webText, "</tr><tr class=""fpc5", CompareMethod.Binary)
+                y_temp = InStr(y, webText, "</tr><tr class=fpc5", CompareMethod.Binary)
+                If y_temp = 0 Then
+                    y = InStr(y, webText, "</tr><tr class=""fpc5", CompareMethod.Binary)
+                Else
+                    y = y_temp
+                End If
                 'Mid(webText, y, 2) = "xx"
 
             Else
@@ -4846,7 +4852,7 @@ Public Class Form1
         Dim needed As String
 
         For i As Integer = 0 To data.Length - 1
-            data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
+            'data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
         Next
 
         'altimeter setting
@@ -4909,7 +4915,7 @@ Public Class Form1
         Dim needed As String
 
         For i As Integer = 0 To data.Length - 1
-            data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
+            'data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
         Next
 
         'altimeter setting

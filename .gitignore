@@ -5,5 +5,7 @@
 *.suo
 *.user
 
+.vs/
+
 King Air C90GTi/bin/
 King Air C90GTi/obj/
