@@ -4762,10 +4762,10 @@ Public Class Form1
                 planATime = Mid(webText, y + 12, 4)
                 Mid(webText, y, 2) = "xx"
 
-                y = InStr(y, webText, "<TD width=50> &nbsp;", CompareMethod.Binary)
-                planPlane = Mid(webText, y + 20, 6)
+                y = InStr(y, webText, "<TD nowrap> &nbsp;", CompareMethod.Binary)
+                planPlane = Mid(webText, y + 18, 6)
                 Mid(webText, y, 2) = "xx"
-                If Microsoft.VisualBasic.Right(planPlane, 1) = "<" Then
+                If Microsoft.VisualBasic.Right(planPlane, 1) = "&" Then
                     planPlane = Mid(planPlane, 1, 5)
                 End If
 
