@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Net
+Imports System.Text.RegularExpressions
 
 Public Class Form1
 
@@ -4847,16 +4848,17 @@ Public Class Form1
         Dim weatherText As String = WebBrowser2.DocumentText
         weatherText = Microsoft.VisualBasic.Split(weatherText, "<!-- Data starts here -->")(1)
         weatherText = Microsoft.VisualBasic.Split(weatherText, "<!-- Data ends here -->")(0)
-        Dim data() As String = Microsoft.VisualBasic.Split(weatherText, "FM")
+        Dim data() As String = Regex.Split(weatherText, "FM\d{4}")
         Dim extracted() As String
         Dim needed As String
 
+        'remove HTML tags
         For i As Integer = 0 To data.Length - 1
-            'data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
+            data(i) = Regex.Replace(data(i), "<.*?>", "")
         Next
 
         'altimeter setting
-        extracted = Microsoft.VisualBasic.Split(data(0))
+        extracted = Regex.Split(data(0), "\s+")
         For i As Integer = 0 To extracted.Length - 1
             If Microsoft.VisualBasic.Left(extracted(i), 1) = "A" And extracted(i) <> "AUTO" Then
                 needed = Microsoft.VisualBasic.Right(extracted(i), 4)
@@ -4910,16 +4912,17 @@ Public Class Form1
         Dim weatherText As String = WebBrowser3.DocumentText
         weatherText = Microsoft.VisualBasic.Split(weatherText, "<!-- Data starts here -->")(1)
         weatherText = Microsoft.VisualBasic.Split(weatherText, "<!-- Data ends here -->")(0)
-        Dim data() As String = Microsoft.VisualBasic.Split(weatherText, "FM")
+        Dim data() As String = Regex.Split(weatherText, "FM\d{4}")
         Dim extracted() As String
         Dim needed As String
 
+        'remove HTML tags
         For i As Integer = 0 To data.Length - 1
-            'data(i) = Mid(data(i), 1, InStr(data(i), "<", CompareMethod.Binary) - 1)
+            data(i) = Regex.Replace(data(i), "<.*?>", "")
         Next
 
         'altimeter setting
-        extracted = Microsoft.VisualBasic.Split(data(0))
+        extracted = Regex.Split(data(0), "\s+")
         For i As Integer = 0 To extracted.Length - 1
             If Microsoft.VisualBasic.Left(extracted(i), 1) = "A" And extracted(i) <> "AUTO" Then
                 needed = Microsoft.VisualBasic.Right(extracted(i), 4)
