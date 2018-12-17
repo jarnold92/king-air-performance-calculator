@@ -4524,8 +4524,8 @@ Public Class Form1
         HProgressBar1.Visible = False
         FPLoadHomepage = False
         WebBrowser1.Tag = 1
-        'WebBrowser1.Navigate("http://fltplan.com")
-        WebBrowser1.Navigate("http://fltplan2.com")
+        WebBrowser1.Navigate("https://fltplan.com")
+        'WebBrowser1.Navigate("http://fltplan2.com")
         'WebBrowser1.Navigate("http://12.132.107.203/fltplan4.htm")
         If FPUsername <> "999999" Then HTextBox1.Text = FPUsername
         If FPPassword <> "999999" Then HTextBox2.Text = FPPassword
@@ -4660,13 +4660,13 @@ Public Class Form1
         theElementCollection = WebBrowser1.Document.GetElementsByTagName("input")
         For Each curElement As HtmlElement In theElementCollection
             Dim controlName As String = curElement.GetAttribute("name").ToString
-            If controlName = "USERNAME" Then
+            If controlName = "username" Then
                 curElement.SetAttribute("VALUE", FPUsername)
-            ElseIf controlName = "PASSWORD" Then
+            ElseIf controlName = "password" Then
                 curElement.SetAttribute("VALUE", FPPassword)
             End If
         Next
-        For Each curElement As HtmlElement In theElementCollection
+        For Each curElement As HtmlElement In WebBrowser1.Document.GetElementsByTagName("button")
             If curElement.GetAttribute("VALUE").Equals("ENTER") Then
                 curElement.InvokeMember("CLICK")
                 Exit For
@@ -4763,8 +4763,8 @@ Public Class Form1
                 planATime = Mid(webText, y + 12, 4)
                 Mid(webText, y, 2) = "xx"
 
-                y = InStr(y, webText, "<TD nowrap> &nbsp;", CompareMethod.Binary)
-                planPlane = Mid(webText, y + 18, 6)
+                y = InStr(y, webText, "<TD nowrap style=""padding-right:23px;""> &nbsp;", CompareMethod.Binary)
+                planPlane = Mid(webText, y + 46, 6)
                 Mid(webText, y, 2) = "xx"
                 If Microsoft.VisualBasic.Right(planPlane, 1) = "&" Then
                     planPlane = Mid(planPlane, 1, 5)
@@ -5473,7 +5473,8 @@ Public Class Form1
         WebBrowser8.Tag = 1
         TLabel6.Text = "LOADING..."
         Me.Cursor = Cursors.WaitCursor
-        WebBrowser8.Navigate("http://fltplan2.com")
+        WebBrowser8.Navigate("https://fltplan.com")
+        'WebBrowser8.Navigate("http://fltplan2.com")
     End Sub
 
 
@@ -5518,13 +5519,13 @@ Public Class Form1
             theElementCollection = WebBrowser8.Document.GetElementsByTagName("input")
             For Each curElement As HtmlElement In theElementCollection
                 Dim controlName As String = curElement.GetAttribute("name").ToString
-                If controlName = "USERNAME" Then
+                If controlName = "username" Then
                     curElement.SetAttribute("VALUE", FPUsername)
-                ElseIf controlName = "PASSWORD" Then
+                ElseIf controlName = "password" Then
                     curElement.SetAttribute("VALUE", FPPassword)
                 End If
             Next
-            For Each curElement As HtmlElement In theElementCollection
+            For Each curElement As HtmlElement In WebBrowser8.Document.GetElementsByTagName("button")
                 If curElement.GetAttribute("VALUE").Equals("ENTER") Then
                     curElement.InvokeMember("CLICK")
                     Exit For
