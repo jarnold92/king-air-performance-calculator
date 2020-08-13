@@ -72,9 +72,11 @@ Public Class Form1
     Public Shared WBPax4 As Double = 999999
     Public Shared WBPax5 As Double = 999999
     Public Shared WBPax6 As Double = 999999
+    Public Shared WBTotalPax As Double = 999999
     Public Shared WBAFTCabinet1 As Double = 999999
     Public Shared WBAFTCabinet2 As Double = 999999
     Public Shared WBBaggage As Double = 999999
+    Public Shared WBTotalBaggage As Double = 999999
     Public Shared WBFuelLoad As Double = 999999
     Public Shared WBFuelUsed As Double = 999999
     Public Shared WBZeroFuelWeight As Double = 999999
@@ -756,6 +758,8 @@ Public Class Form1
     End Sub
 
     Public Sub ACalculateData()
+        WBTotalPax = WBPilot + WBCopilot + WBPax1 + WBPax2 + WBPax3 + WBPax4 + WBPax5 + WBPax6
+        WBTotalBaggage = WBFWDCabinet + WBAFTCabinet1 + WBAFTCabinet2 + WBBaggage
         WBZeroFuelWeight = WBBasicEmptyWeights(WBAircraft) + WBPilot + WBCopilot + WBFWDCabinet + WBPax1 + WBPax2 + WBPax3 + WBPax4 + WBPax5 + WBPax6 + WBAFTCabinet1 + WBAFTCabinet2 + WBBaggage
         WBRampWeight = WBZeroFuelWeight + WBFuelLoad
         TakeoffWeight = WBRampWeight - 60
@@ -2305,6 +2309,7 @@ Public Class Form1
     End Sub
 
     Public Sub CCalculateData()
+
         Dim Cy1, Cy2 As Double
         Dim altitude As Double = TakeoffPressureAltitude
         Dim temperature As Double = TakeoffTemperature
@@ -2392,7 +2397,6 @@ Public Class Form1
 
 #End Region
 #Region " Climb Equations "
-
     Function CAltitude0(ByVal x As Double) As Double
         CAltitude0 = -0.8065 * x + 476.61
     End Function
@@ -2633,164 +2637,65 @@ Public Class Form1
         Dim temperature As Double = CruiseTemperature
         Dim weight As Double = TakeoffWeight
         Dim torque, fuelFlow, IAS, TAS As Double
-        Dim IASlower, IAShigher, TASlower, TAShigher As Double
+
         If DRadioButton1.Checked Then
             If temperature <= -20 Then
                 torque = CTorquen20(altitude)
-                fuelFlow = CFuelFlown20(altitude)
-                If weight >= 9500 Then
-                    IAS = CIAS9500n20(altitude)
-                    TAS = CTAS9500n20(altitude)
-                ElseIf weight >= 8500 Then
-                    IAS = CIAS8500n20(altitude) + ((weight - 8500) / 1000) * (CIAS9500n20(altitude) - CIAS8500n20(altitude))
-                    TAS = CTAS8500n20(altitude) + ((weight - 8500) / 1000) * (CTAS9500n20(altitude) - CTAS8500n20(altitude))
-                ElseIf weight >= 7500 Then
-                    IAS = CIAS7500n20(altitude) + ((weight - 7500) / 1000) * (CIAS8500n20(altitude) - CIAS7500n20(altitude))
-                    TAS = CTAS7500n20(altitude) + ((weight - 7500) / 1000) * (CTAS8500n20(altitude) - CTAS7500n20(altitude))
-                Else
-                    IAS = CIAS7500n20(altitude)
-                    TAS = CTAS7500n20(altitude)
-                End If
+
             ElseIf temperature <= -10 Then
                 torque = CTorquen20(altitude) + ((temperature + 20) / 10) * (CTorquen10(altitude) - CTorquen20(altitude))
-                fuelFlow = CFuelFlown20(altitude) + ((temperature + 20) / 10) * (CFuelFlown10(altitude) - CFuelFlown20(altitude))
-                If weight >= 9500 Then
-                    IAS = CIAS9500n20(altitude) + ((temperature + 20) / 10) * (CIAS9500n10(altitude) - CIAS9500n20(altitude))
-                    TAS = CTAS9500n20(altitude) + ((temperature + 20) / 10) * (CTAS9500n10(altitude) - CTAS9500n20(altitude))
-                ElseIf weight >= 8500 Then
-                    IASlower = CIAS8500n20(altitude) + ((temperature + 20) / 10) * (CIAS8500n10(altitude) - CIAS8500n20(altitude))
-                    TASlower = CTAS8500n20(altitude) + ((temperature + 20) / 10) * (CTAS8500n10(altitude) - CTAS8500n20(altitude))
-                    IAShigher = CIAS9500n20(altitude) + ((temperature + 20) / 10) * (CIAS9500n10(altitude) - CIAS9500n20(altitude))
-                    TAShigher = CTAS9500n20(altitude) + ((temperature + 20) / 10) * (CTAS9500n10(altitude) - CTAS9500n20(altitude))
-                    IAS = IASlower + ((weight - 8500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 8500) / 1000) * (TAShigher - TASlower)
-                ElseIf weight >= 7500 Then
-                    IAShigher = CIAS8500n20(altitude) + ((temperature + 20) / 10) * (CIAS8500n10(altitude) - CIAS8500n20(altitude))
-                    TAShigher = CTAS8500n20(altitude) + ((temperature + 20) / 10) * (CTAS8500n10(altitude) - CTAS8500n20(altitude))
-                    IASlower = CIAS7500n20(altitude) + ((temperature + 20) / 10) * (CIAS7500n10(altitude) - CIAS7500n20(altitude))
-                    TASlower = CTAS7500n20(altitude) + ((temperature + 20) / 10) * (CTAS7500n10(altitude) - CTAS7500n20(altitude))
-                    IAS = IASlower + ((weight - 7500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 7500) / 1000) * (TAShigher - TASlower)
-                Else
-                    IAS = CIAS7500n20(altitude) + ((temperature + 20) / 10) * (CIAS7500n10(altitude) - CIAS7500n20(altitude))
-                    TAS = CTAS7500n20(altitude) + ((temperature + 20) / 10) * (CTAS7500n10(altitude) - CTAS7500n20(altitude))
-                End If
+
             ElseIf temperature <= 0 Then
                 torque = CTorquen10(altitude) + ((temperature + 10) / 10) * (CTorque0(altitude) - CTorquen10(altitude))
-                fuelFlow = CFuelFlown10(altitude) + ((temperature + 10) / 10) * (CFuelFlow0(altitude) - CFuelFlown10(altitude))
-                If weight >= 9500 Then
-                    IAS = CIAS9500n10(altitude) + ((temperature + 10) / 10) * (CIAS95000(altitude) - CIAS9500n10(altitude))
-                    TAS = CTAS9500n10(altitude) + ((temperature + 10) / 10) * (CTAS95000(altitude) - CTAS9500n10(altitude))
-                ElseIf weight >= 8500 Then
-                    IASlower = CIAS8500n10(altitude) + ((temperature + 10) / 10) * (CIAS85000(altitude) - CIAS8500n10(altitude))
-                    TASlower = CTAS8500n10(altitude) + ((temperature + 10) / 10) * (CTAS85000(altitude) - CTAS8500n10(altitude))
-                    IAShigher = CIAS9500n10(altitude) + ((temperature + 10) / 10) * (CIAS95000(altitude) - CIAS9500n10(altitude))
-                    TAShigher = CTAS9500n10(altitude) + ((temperature + 10) / 10) * (CTAS95000(altitude) - CTAS9500n10(altitude))
-                    IAS = IASlower + ((weight - 8500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 8500) / 1000) * (TAShigher - TASlower)
-                ElseIf weight >= 7500 Then
-                    IAShigher = CIAS8500n10(altitude) + ((temperature + 10) / 10) * (CIAS85000(altitude) - CIAS8500n10(altitude))
-                    TAShigher = CTAS8500n10(altitude) + ((temperature + 10) / 10) * (CTAS85000(altitude) - CTAS8500n10(altitude))
-                    IASlower = CIAS7500n10(altitude) + ((temperature + 10) / 10) * (CIAS75000(altitude) - CIAS7500n10(altitude))
-                    TASlower = CTAS7500n10(altitude) + ((temperature + 10) / 10) * (CTAS75000(altitude) - CTAS7500n10(altitude))
-                    IAS = IASlower + ((weight - 7500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 7500) / 1000) * (TAShigher - TASlower)
-                Else
-                    IAS = CIAS7500n10(altitude) + ((temperature + 10) / 10) * (CIAS75000(altitude) - CIAS7500n10(altitude))
-                    TAS = CTAS7500n10(altitude) + ((temperature + 10) / 10) * (CTAS75000(altitude) - CTAS7500n10(altitude))
-                End If
+
             ElseIf temperature <= 10 Then
                 torque = CTorque0(altitude) + ((temperature + 0) / 10) * (CTorque10(altitude) - CTorque0(altitude))
-                fuelFlow = CFuelFlow0(altitude) + ((temperature + 0) / 10) * (CFuelFlow10(altitude) - CFuelFlow0(altitude))
-                If weight >= 9500 Then
-                    IAS = CIAS95000(altitude) + ((temperature + 0) / 10) * (CIAS950010(altitude) - CIAS95000(altitude))
-                    TAS = CTAS95000(altitude) + ((temperature + 0) / 10) * (CTAS950010(altitude) - CTAS95000(altitude))
-                ElseIf weight >= 8500 Then
-                    IASlower = CIAS85000(altitude) + ((temperature + 0) / 10) * (CIAS850010(altitude) - CIAS85000(altitude))
-                    TASlower = CTAS85000(altitude) + ((temperature + 0) / 10) * (CTAS850010(altitude) - CTAS85000(altitude))
-                    IAShigher = CIAS95000(altitude) + ((temperature + 0) / 10) * (CIAS950010(altitude) - CIAS95000(altitude))
-                    TAShigher = CTAS95000(altitude) + ((temperature + 0) / 10) * (CTAS950010(altitude) - CTAS95000(altitude))
-                    IAS = IASlower + ((weight - 8500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 8500) / 1000) * (TAShigher - TASlower)
-                ElseIf weight >= 7500 Then
-                    IAShigher = CIAS85000(altitude) + ((temperature + 0) / 10) * (CIAS850010(altitude) - CIAS85000(altitude))
-                    TAShigher = CTAS85000(altitude) + ((temperature + 0) / 10) * (CTAS850010(altitude) - CTAS85000(altitude))
-                    IASlower = CIAS75000(altitude) + ((temperature + 0) / 10) * (CIAS750010(altitude) - CIAS75000(altitude))
-                    TASlower = CTAS75000(altitude) + ((temperature + 0) / 10) * (CTAS750010(altitude) - CTAS75000(altitude))
-                    IAS = IASlower + ((weight - 7500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 7500) / 1000) * (TAShigher - TASlower)
-                Else
-                    IAS = CIAS75000(altitude) + ((temperature + 0) / 10) * (CIAS750010(altitude) - CIAS75000(altitude))
-                    TAS = CTAS75000(altitude) + ((temperature + 0) / 10) * (CTAS750010(altitude) - CTAS75000(altitude))
-                End If
+
             ElseIf temperature <= 20 Then
                 torque = CTorque10(altitude) + ((temperature - 10) / 10) * (CTorque20(altitude) - CTorque10(altitude))
-                fuelFlow = CFuelFlow10(altitude) + ((temperature - 10) / 10) * (CFuelFlow20(altitude) - CFuelFlow10(altitude))
-                If weight >= 9500 Then
-                    IAS = CIAS950010(altitude) + ((temperature - 10) / 10) * (CIAS950020(altitude) - CIAS950010(altitude))
-                    TAS = CTAS950010(altitude) + ((temperature - 10) / 10) * (CTAS950020(altitude) - CTAS950010(altitude))
-                ElseIf weight >= 8500 Then
-                    IASlower = CIAS850010(altitude) + ((temperature - 10) / 10) * (CIAS850020(altitude) - CIAS850010(altitude))
-                    TASlower = CTAS850010(altitude) + ((temperature - 10) / 10) * (CTAS850020(altitude) - CTAS850010(altitude))
-                    IAShigher = CIAS950010(altitude) + ((temperature - 10) / 10) * (CIAS950020(altitude) - CIAS950010(altitude))
-                    TAShigher = CTAS950010(altitude) + ((temperature - 10) / 10) * (CTAS950020(altitude) - CTAS950010(altitude))
-                    IAS = IASlower + ((weight - 8500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 8500) / 1000) * (TAShigher - TASlower)
-                ElseIf weight >= 7500 Then
-                    IAShigher = CIAS850010(altitude) + ((temperature - 10) / 10) * (CIAS850020(altitude) - CIAS850010(altitude))
-                    TAShigher = CTAS850010(altitude) + ((temperature - 10) / 10) * (CTAS850020(altitude) - CTAS850010(altitude))
-                    IASlower = CIAS750010(altitude) + ((temperature - 10) / 10) * (CIAS750020(altitude) - CIAS750010(altitude))
-                    TASlower = CTAS750010(altitude) + ((temperature - 10) / 10) * (CTAS750020(altitude) - CTAS750010(altitude))
-                    IAS = IASlower + ((weight - 7500) / 1000) * (IAShigher - IASlower)
-                    TAS = TASlower + ((weight - 7500) / 1000) * (TAShigher - TASlower)
-                Else
-                    IAS = CIAS750010(altitude) + ((temperature - 10) / 10) * (CIAS750020(altitude) - CIAS750010(altitude))
-                    TAS = CTAS750010(altitude) + ((temperature - 10) / 10) * (CTAS750020(altitude) - CTAS750010(altitude))
-                End If
+
             Else
                 torque = CTorque20(altitude)
-                fuelFlow = CFuelFlow20(altitude)
-                If weight >= 9500 Then
-                    IAS = CIAS950020(altitude)
-                    TAS = CTAS950020(altitude)
-                ElseIf weight >= 8500 Then
-                    IAS = CIAS850020(altitude) + ((weight - 8500) / 1000) * (CIAS950020(altitude) - CIAS850020(altitude))
-                    TAS = CTAS850020(altitude) + ((weight - 8500) / 1000) * (CTAS950020(altitude) - CTAS850020(altitude))
-                ElseIf weight >= 7500 Then
-                    IAS = CIAS750020(altitude) + ((weight - 7500) / 1000) * (CIAS850020(altitude) - CIAS750020(altitude))
-                    TAS = CTAS750020(altitude) + ((weight - 7500) / 1000) * (CTAS850020(altitude) - CTAS750020(altitude))
-                Else
-                    IAS = CIAS750020(altitude)
-                    TAS = CTAS750020(altitude)
-                End If
+
             End If
+
+            ' limit the torque to 1400 per UND Limitations for Cruise
+            If torque > 1400 Then
+                torque = 1400
+            End If
+            fuelFlow = CFuelFlow(altitude, temperature, torque)
+            IAS = CIAS(altitude, temperature, torque, weight)
+            TAS = CTAS(altitude, temperature, torque, weight)
+
         Else
             IAS = 888888
             If temperature <= -20 Then
                 torque = RTorquen20(altitude)
-                fuelFlow = RFuelFlown20(altitude)
-                TAS = RTASn20(altitude)
+
             ElseIf temperature <= 10 Then
                 torque = RTorquen20(altitude) + ((temperature + 20) / 10) * (RTorquen10(altitude) - RTorquen20(altitude))
-                fuelFlow = RFuelFlown20(altitude) + ((temperature + 20) / 10) * (RFuelFlown10(altitude) - RFuelFlown20(altitude))
-                TAS = RTASn20(altitude) + ((temperature + 20) / 10) * (RTASn10(altitude) - RTASn20(altitude))
+
             ElseIf temperature <= 0 Then
                 torque = RTorquen10(altitude) + ((temperature + 10) / 10) * (RTorque0(altitude) - RTorquen10(altitude))
-                fuelFlow = RFuelFlown10(altitude) + ((temperature + 10) / 10) * (RFuelFlow0(altitude) - RFuelFlown10(altitude))
-                TAS = RTASn10(altitude) + ((temperature + 10) / 10) * (RTAS0(altitude) - RTASn10(altitude))
+
             ElseIf temperature <= 10 Then
                 torque = RTorque0(altitude) + ((temperature + 0) / 10) * (RTorque10(altitude) - RTorque0(altitude))
-                fuelFlow = RFuelFlow0(altitude) + ((temperature + 0) / 10) * (RFuelFlow10(altitude) - RFuelFlow0(altitude))
-                TAS = RTAS0(altitude) + ((temperature + 0) / 10) * (RTAS10(altitude) - RTAS0(altitude))
+
             ElseIf temperature <= 20 Then
                 torque = RTorque10(altitude) + ((temperature - 10) / 10) * (RTorque20(altitude) - RTorque10(altitude))
-                fuelFlow = RFuelFlow10(altitude) + ((temperature - 10) / 10) * (RFuelFlow20(altitude) - RFuelFlow10(altitude))
-                TAS = RTAS10(altitude) + ((temperature - 10) / 10) * (RTAS20(altitude) - RTAS10(altitude))
+
             Else
                 torque = RTorque20(altitude)
-                fuelFlow = RFuelFlow20(altitude)
-                TAS = RTAS20(altitude)
+
             End If
+
+            ' limit the torque to 1400 per UND Limitations for Cruise
+            If torque > 1400 Then
+                torque = 1400
+            End If
+            fuelFlow = RFuelFlow(altitude, temperature, torque, weight)
+            TAS = RTAS(altitude, temperature, torque, weight)
+
         End If
 
         CruiseTorque = torque
@@ -3106,1219 +3011,90 @@ Public Class Form1
         Return output
     End Function
 
-    Function CFuelFlown20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {363, 357, 351, 342, 333, 326, 321, 318, 317, 316, 317, 306, 283, 260, 237, 227}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
+    Function CFuelFlow(ByVal altitude As Double, ByVal temp As Double, torque As Double) As Double
+        ' Calculate Fuel flow given Pressure Alt, OAT, and torque for Maximim Cruise Power
+        ' Formula Fit using JMP software, Response surface model:  RSquare = .999
+        CFuelFlow = 38.8367147996031 +
+                    (-0.000981605146855391 * altitude) + (0.244145175775688 * temp) + (0.197396513495762 * torque) +
+                    (altitude - 14937.5) * ((altitude - 14937.5) * 0.0000001940262575921) +
+                    (altitude - 14937.5) * ((temp - (-10.391375)) * -0.0000010450438997749) +
+                    (temp - (-10.391375)) * ((temp - (-10.391375)) * 0.00079635011253696) +
+                    (altitude - 14937.5) * ((torque - 1362.9609375) * 0.0000019902202136953) +
+                    (temp - (-10.391375)) * ((torque - 1362.9609375) * -0.000380135138659781) +
+                    (torque - 1362.9609375) * ((torque - 1362.9609375) * -0.0000270557354301153)
     End Function
 
-    Function CFuelFlown10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {366, 360, 353, 343, 335, 328, 323, 319, 318, 318, 319, 303, 283, 262, 241, 229}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
+    Function CIAS(ByVal altitude As Double, ByVal temp As Double, torque As Double, weight As Double) As Double
+        ' Calculate indicated air speed (IAS) given Pressure Alt, OAT, weight, and torque for Maximim Cruise Power
+        ' Formula Fit using JMP software, Response surface model:  RSquare = .999
+        CIAS = 163.726382854845 +
+               (-0.00153466316234826 * altitude) + (-0.168567039077046 * temp) +
+               (-0.00168359375000001 * weight) + (0.0544873936527816 * torque) +
+               (altitude - 14937.5) * ((altitude - 14937.5) * -0.0000000136480458953) +
+               (altitude - 14937.5) * ((temp - (-10.391375)) * -0.0000031093884204995) +
+               (altitude - 14937.5) * ((weight - 8500) * -0.0000000724156211174) +
+               (temp - (-10.391375)) * ((weight - 8500) * -0.0000087583068497771) +
+               (weight - 8500) * ((weight - 8500) * -0.00000013671875) +
+               (altitude - 14937.5) * ((torque - 1362.9609375) * -0.0000002768512543609) +
+               (temp - (-10.391375)) * ((torque - 1362.9609375) * -0.0000526044895032847) +
+               (weight - 8500) * ((torque - 1362.9609375) * 0.0000023993380913181) +
+               (torque - 1362.9609375) * ((torque - 1362.9609375) * -0.0000230604046459295)
     End Function
 
-    Function CFuelFlow0(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {375, 367, 355, 345, 336, 329, 325, 322, 321, 320, 306, 288, 270, 252, 235, 226}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
+    Function CTAS(ByVal altitude As Double, ByVal temp As Double, torque As Double, weight As Double) As Double
+        ' Calculate true air speed (TAS) given Pressure Alt, OAT, weight, and torque for Maximim Cruise Power
+        ' Formula Fit using JMP software, Response surface model:  RSquare = .999
+        CTAS = 141.410515044526 +
+               (0.00301693460014621 * altitude) + (0.274130173206431 * temp) +
+               (-0.002265625 * weight) + (0.0665162557508973 * torque) +
+               (altitude - 14937.5) * ((altitude - 14937.5) * 0.0000000043367030754) +
+               (altitude - 14937.5) * ((temp - (-10.391375)) * -0.0000037269129182495) +
+               (temp - (-10.391375)) * ((temp - (-10.391375)) * -0.00103275695887939) +
+               (altitude - 14937.5) * ((weight - 8500) * -0.0000000944380976711) +
+               (temp - (-10.391375)) * ((weight - 8500) * -0.000012258721653737) +
+               (weight - 8500) * ((weight - 8500) * -0.0000001875) +
+               (altitude - 14937.5) * ((torque - 1362.9609375) * 0.0000002598765567791) +
+               (weight - 8500) * ((torque - 1362.9609375) * 0.000004996298457848) +
+               (torque - 1362.9609375) * ((torque - 1362.9609375) * -0.000052604059382324)
     End Function
 
-    Function CFuelFlow10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {381, 370, 358, 347, 339, 332, 327, 324, 322, 307, 290, 273, 256, 240, 223, 215}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
+    Function RFuelFlow(ByVal altitude As Double, ByVal temp As Double, torque As Double, weight As Double) As Double
+        ' Calculate Fuel flow given Pressure Alt, OAT, torque and weight for Maximim Range Power
+        ' Formula Fit using JMP software, Response surface model:  RSquare = .999
+        RFuelFlow = 122.192836876729 +
+                    (-0.00295747759142677 * altitude) + (0.280599848324971 * temp) +
+                    (0.00181381946891556 * weight) + (0.136251132336938 * torque) +
+                    (altitude - 14937.5) * ((altitude - 14937.5) * 0.0000000657525557836) +
+                    (altitude - 14937.5) * ((temp - (-10.391375)) * -0.0000212793069487926) +
+                    (temp - (-10.391375)) * ((temp - (-10.391375)) * 0.00164831996859893) +
+                    (altitude - 14937.5) * ((weight - 8500) * 0.0000001592609940174) +
+                    (temp - (-10.391375)) * ((weight - 8500) * 0.000105562910202983) +
+                    (weight - 8500) * ((weight - 8500) * 0.0000009687685366877) +
+                    (altitude - 14937.5) * ((torque - 766.111979166667) * -0.0000018601284769152) +
+                    (temp - (-10.391375)) * ((torque - 766.111979166667) * -0.00140604189358552) +
+                    (weight - 8500) * ((torque - 766.111979166667) * -0.0000166552119713519) +
+                    (torque - 766.111979166667) * ((torque - 766.111979166667) * 0.0000733004792007911)
     End Function
 
-    Function CFuelFlow20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
 
-        matrix = {385, 373, 361, 351, 342, 335, 329, 318, 304, 289, 273, 258, 242, 227, 212, 204}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RFuelFlown20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {261, 247, 234, 222, 211, 200, 192, 184, 180, 178, 176, 175, 174, 172, 166, 162}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RFuelFlown10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {270, 253, 239, 226, 215, 203, 194, 187, 181, 179, 177, 174, 169, 162, 159, 160}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RFuelFlow0(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {328, 316, 301, 279, 258, 239, 221, 200, 189, 183, 177, 171, 168, 166, 166, 166}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RFuelFlow10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {313, 299, 287, 273, 260, 246, 234, 222, 209, 198, 191, 184, 178, 172, 168, 168}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RFuelFlow20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {355, 325, 297, 271, 253, 237, 223, 214, 207, 198, 189, 180, 174, 171, 173, 174}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS9500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 226, 223, 221, 219, 217, 215, 212, 210, 207, 201, 192, 182, 172, 167}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS8500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 226, 224, 222, 220, 218, 216, 213, 211, 209, 203, 194, 185, 175, 170}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS7500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 226, 225, 223, 221, 219, 217, 214, 213, 210, 205, 196, 187, 178, 173}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS9500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {217, 223, 230, 234, 238, 244, 248, 253, 258, 263, 268, 269, 266, 261, 256, 252}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS8500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {217, 223, 230, 235, 240, 245, 250, 254, 259, 265, 270, 271, 268, 265, 260, 257}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS7500n20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {217, 223, 230, 236, 241, 246, 251, 256, 261, 267, 272, 273, 271, 267, 263, 261}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS9500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 224, 222, 220, 217, 215, 213, 210, 208, 205, 198, 190, 181, 171, 166}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS9500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {221, 228, 233, 237, 242, 246, 251, 256, 261, 266, 272, 217, 268, 265, 260, 256}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS8500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 225, 223, 221, 219, 216, 214, 212, 209, 207, 200, 192, 183, 174, 169}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS8500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {221, 228, 234, 238, 243, 248, 252, 257, 263, 268, 273, 273, 217, 268, 264, 261}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS7500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 226, 224, 222, 220, 217, 215, 213, 211, 208, 202, 194, 158, 176, 172}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS7500n10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {221, 228, 235, 239, 244, 249, 254, 259, 264, 270, 275, 275, 274, 271, 268, 265}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS95000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 225, 222, 220, 218, 215, 214, 211, 209, 206, 200, 192, 184, 175, 167, 162}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS95000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {225, 231, 235, 240, 244, 249, 254, 259, 264, 269, 270, 268, 266, 263, 259, 257}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS85000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 224, 221, 219, 217, 215, 212, 210, 207, 201, 194, 186, 178, 170, 166}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS85000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {225, 232, 236, 241, 264, 250, 256, 261, 266, 271, 272, 271, 269, 267, 264, 262}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS75000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 226, 225, 222, 220, 218, 216, 214, 211, 209, 203, 196, 188, 180, 173, 169}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS75000(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {225, 232, 237, 242, 247, 251, 257, 262, 268, 273, 274, 273, 272, 270, 268, 267}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS950010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {225, 223, 221, 219, 217, 214, 212, 209, 207, 200, 193, 185, 177, 169, 161, 156}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS950010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {229, 233, 237, 243, 247, 252, 257, 262, 267, 267, 266, 265, 262, 259, 256, 253}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS850010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 224, 222, 220, 218, 216, 213, 211, 208, 202, 195, 187, 180, 172, 164, 160}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS850010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {229, 234, 239, 244, 249, 254, 258, 264, 269, 269, 269, 268, 266, 264, 261, 259}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS750010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 225, 223, 221, 219, 217, 214, 212, 209, 203, 196, 189, 182, 175, 167, 163}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS750010(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {229, 235, 240, 245, 250, 255, 260, 265, 270, 271, 271, 270, 269, 267, 265, 264}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS950020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {224, 222, 220, 217, 215, 213, 210, 205, 199, 193, 186, 178, 171, 162, 154, 149}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS950020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {232, 236, 240, 245, 250, 255, 259, 262, 263, 263, 262, 260, 258, 254, 250, 247}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS850020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {225, 223, 221, 219, 216, 214, 211, 207, 201, 195, 188, 181, 173, 166, 158, 154}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS850020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {233, 237, 242, 246, 251, 256, 261, 263, 265, 265, 265, 264, 262, 259, 256, 254}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CIAS750020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {226, 224, 222, 220, 217, 215, 212, 208, 203, 197, 190, 183, 176, 168, 161, 157}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function CTAS750020(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {234, 238, 243, 248, 252, 257, 262, 265, 267, 268, 267, 267, 265, 264, 261, 260}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RTASn20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {170, 172, 174, 176, 178, 180, 183, 185, 188, 193, 198, 203, 208, 213, 211, 210}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RTASn10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {168, 170, 173, 175, 178, 180, 183, 187, 190, 196, 202, 206, 207, 205, 205, 208}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RTAS0(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {203, 208, 211, 209, 207, 205, 203, 195, 195, 198, 201, 202, 205, 208, 213, 216}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RTAS10(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {195, 199, 204, 207, 210, 212, 214, 214, 213, 213, 215, 216, 216, 215, 215, 217}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
-    End Function
-
-    Function RTAS20(ByVal altitude As Double) As Double
-        Dim matrix(15) As Integer
-        Dim lower As Integer
-        Dim higher As Integer
-        Dim output As Double
-
-        matrix = {218, 214, 210, 205, 205, 205, 206, 209, 212, 213, 213, 212, 212, 214, 221, 224}
-
-        If altitude > 29000 Then
-            output = matrix(15)
-        ElseIf altitude > 28000 Then
-            output = matrix(14) + ((altitude - 28000) / 1000) * (matrix(15) - matrix(14))
-        Else
-            lower = Math.Floor(altitude / 2000)
-            higher = lower + 1
-
-            If lower = (altitude / 2000) Then
-                output = matrix(lower)
-            Else
-                output = matrix(lower) + ((altitude - (lower * 2000)) / 2000) * (matrix(higher) - matrix(lower))
-            End If
-
-        End If
-
-        Return output
+    Function RTAS(ByVal altitude As Double, ByVal temp As Double, torque As Double, weight As Double) As Double
+        ' Calculate true air speed (TAS) given Pressure Alt, OAT, weight, and torque for Maximim Range Power
+        ' Formula Fit using JMP software, Response surface model:  RSquare = .999
+        RTAS = 110.638248464073 +
+               (0.00226672411485662 * altitude) +
+               (0.216541070201403 * temp) +
+               (-0.00401876765031915 * weight) +
+               (0.121544169842892 * torque) +
+              (altitude - 14937.5) * ((altitude - 14937.5) * 0.0000000046452479411) +
+              (altitude - 14937.5) * ((temp - (-10.391375)) * -0.0000007383296418252) +
+              (temp - (-10.391375)) * ((temp - (-10.391375)) * -0.000485279819478586) +
+              (altitude - 14937.5) * ((weight - 8500) * -0.0000001925787910944) +
+              (temp - (-10.391375)) * ((weight - 8500) * -0.0000185856401764237) +
+              (weight - 8500) * ((weight - 8500) * -0.0000004055026480439) +
+              (altitude - 14937.5) * ((torque - 766.111979166667) * 0.0000018822236139281) +
+              (temp - (-10.391375)) * ((torque - 766.111979166667) * 0.0000887433768170885) +
+              (weight - 8500) * ((torque - 766.111979166667) * 0.0000046295692829257) +
+              (torque - 766.111979166667) * ((torque - 766.111979166667) * -0.0000512494463683794)
     End Function
 
 #End Region
@@ -5461,6 +4237,10 @@ Public Class Form1
         e.Graphics.DrawString(CInt(WBFuelUsed).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 400, 250)
         e.Graphics.DrawString("Fuel Remaining:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 275)
         e.Graphics.DrawString(CInt(CDbl(WBFuelLoad) - CDbl(WBFuelUsed)).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 440, 275)
+        e.Graphics.DrawString("Cargo WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 325)
+        e.Graphics.DrawString(CInt(WBTotalBaggage).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 420, 325)
+        e.Graphics.DrawString("Passenger WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 350)
+        e.Graphics.DrawString(CInt(WBTotalPax).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 450, 350)
 
     End Sub
 

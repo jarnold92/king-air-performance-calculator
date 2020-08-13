@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="King Air C90GTi.exe" version="1.1.3.5" publicKeyToken="423fc60561697b3b" language="neutral" processorArchitecture="msil" type="win32" />
+  <description asmv2:iconFile="airplane.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="King Air C90GTi" version="1.1.3.4" language="neutral" processorArchitecture="msil" />
+    <commandLine file="King Air C90GTi.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet class="System.Security.PermissionSet" version="1" ID="Custom" SameSite="site" Unrestricted="true" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- UAC Manifest Options
+             If you want to change the Windows User Account Control level replace the 
+             requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+            Specifying requestedExecutionLevel element will disable file and registry virtualization. 
+            Remove this element if your application requires this virtualization for backwards
+            compatibility.
+        -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="4" minorVersion="10" buildNumber="0" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="2.0.50727.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="King Air C90GTi.exe" size="1658280">
+      <assemblyIdentity name="King Air C90GTi" version="1.1.3.4" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <dsig:DigestValue>FAzIUmdiFADZ2rxaf+yFvXIwpXU=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="airplane.ico" size="99678">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>ws6TMM2umo9N6fP1HxQZ3Ocpn9M=</dsig:DigestValue>
+    </hash>
+  </file>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- A list of the Windows versions that this application has been tested on
+           and is designed to work with. Uncomment the appropriate elements
+           and Windows will automatically select the most compatible environment. -->
+      <!-- Windows Vista -->
+      <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />-->
+      <!-- Windows 7 -->
+      <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />-->
+      <!-- Windows 8 -->
+      <!--<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />-->
+      <!-- Windows 8.1 -->
+      <!--<supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />-->
+      <!-- Windows 10 -->
+      <!--<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />-->
+    </application>
+  </compatibility>
+<publisherIdentity name="CN=4214-PHX\Mesa User" issuerKeyHash="d7473b241ebe198dce04c1ef73125e7d3b30c520" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" /><DigestValue>uvKaZwt/blE34b68Lu7QwLQyf4s=</DigestValue></Reference></SignedInfo><SignatureValue>qfnhiBJGjEtR+fuETDpzGrpGHV0JMSGAb+6Vs3GcFC4eP1ooXOHwiud3jI+xENc3/KX9wLu2RUwH9d9JEQMsTAgOre0WGvK9w6BOe4NeCu7jAg0I1KDfImox2anjYQWUcpDW/kMJDVQ6lBBe0GngbBQQyv+GQvMdXLGkl6bh0l8=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>uFhJme176FJndAWND/yhWssQhk1VoMOBBFmNRpiOu9e0ZxLed7GY8qKG/1ElekGobH0z0MwBaw4MnFQZMGIqHHzTOdfx1I5JkpMSoNsh3w14E6i7j32YxDCEyo4FTy9WmF/ChB7rLHjetb+IDu9NXnf0ygBSXSDGIE9opo4dGj0=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="8b7f32b4c0d0ee2ebcbee137516e7f0b679af2ba" Description="" Url=""><as:assemblyIdentity name="King Air C90GTi.exe" version="1.1.3.5" publicKeyToken="423fc60561697b3b" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=4214-PHX\Mesa User</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" /><DigestValue>qWx2b2tHbUkccAzEFCB3KXTF2io=</DigestValue></Reference></SignedInfo><SignatureValue>IR1CgnGREdP2phOE9/bhPtRdkNi2m2qC7pTWGKdt3yZJVTZEzcqx/ZcdPM8sBwvorRbHWUkZ0ShvggXgBKk3/eB+CaYn9o7+ojTvk5/kj7Wz8/SUk8lWz8Z5lLypGEi+xAxVR5qh4NtsX+8JrXqMU/Iz5jE8ZBw3IFqrWsZ5MjY=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>uFhJme176FJndAWND/yhWssQhk1VoMOBBFmNRpiOu9e0ZxLed7GY8qKG/1ElekGobH0z0MwBaw4MnFQZMGIqHHzTOdfx1I5JkpMSoNsh3w14E6i7j32YxDCEyo4FTy9WmF/ChB7rLHjetb+IDu9NXnf0ygBSXSDGIE9opo4dGj0=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB4TCCAUqgAwIBAgIQeehyoGUeeaJF28Z69EVXMTANBgkqhkiG9w0BAQUFADAvMS0wKwYDVQQDHiQANAAyADEANAAtAFAASABYAFwATQBlAHMAYQAgAFUAcwBlAHIwHhcNMTkxMTI1MjMxMjE3WhcNMjAxMTI1MDUxMjE3WjAvMS0wKwYDVQQDHiQANAAyADEANAAtAFAASABYAFwATQBlAHMAYQAgAFUAcwBlAHIwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALhYSZnte+hSZ3QFjQ/8oVrLEIZNVaDDgQRZjUaYjrvXtGcS3nexmPKihv9RJXpBqGx9M9DMAWsODJxUGTBiKhx80znX8dSOSZKTEqDbId8NeBOou499mMQwhMqOBU8vVphfwoQe6yx43rW/iA7vTV539MoAUl0gxiBPaKaOHRo9AgMBAAEwDQYJKoZIhvcNAQEFBQADgYEAEs7/oZ0FAR7+euy/2txwKj6QnffY2L+ReDNMLlo9CkEagLiZU1z5T7hUm1sJ1C6E8xOKy4sFFSynRcQhPae/ZtYggwR5KNgekZYq5YEX/Oq+8iAl6iiNJBgu/AelY08RiNjSmnbZzFBCAK9Vt1UX3eHeIUu/XXNjjdio4mZGxHw=</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
