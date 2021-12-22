@@ -42,12 +42,14 @@ Public Class Form1
     Public Shared UnitClimbTemperature24 As Integer = 999999
     Public Shared ClimbRate As Double = 999999
     Public Shared ClimbServiceCeiling As Double = 999999
+    Public Shared LandingClimbRate As Double = 999999
     Public Shared LandingAltitude As Double = 999999
     Public Shared LandingAltimeterSetting As Double = 999999
     Public Shared LandingTemperature As Double = 999999
     Public Shared LandingWeight As Double = 999999
     Public Shared LandingWind As Double = 999999
     Public Shared LandingDistance As Double = 999999
+    Public Shared LandingDistanceZeroFlaps As Double = 999999
     Public Shared UnitLandingAltitude As Integer = 999999
     Public Shared UnitLandingTemperature As Integer = 999999
     Public Shared UnitLandingWeight As Integer = 999999
@@ -415,12 +417,14 @@ Public Class Form1
         UnitClimbTemperature24 = 999999
         ClimbRate = 999999
         ClimbServiceCeiling = 999999
+        LandingClimbRate = 999999
         LandingAltitude = 999999
         LandingAltimeterSetting = 999999
         LandingTemperature = 999999
         LandingWeight = 999999
         LandingWind = 999999
         LandingDistance = 999999
+        LandingDistanceZeroFlaps = 999999
         UnitLandingAltitude = 999999
         UnitLandingTemperature = 999999
         UnitLandingWeight = 999999
@@ -643,6 +647,11 @@ Public Class Form1
 
     Public Function ConvertWeight(ByVal weight As Double) As Double
         Return (weight * 2.20462)
+    End Function
+
+    Public Function ConvertISATemperature(ByVal ISA_temp As Double, ByVal pressure_altitude As Double) As Double
+        ' calculates and returns the true temperature given the pressure altitude and ISA relative temp
+        Return (ISA_temp + 15.06 - (pressure_altitude * 0.001978))
     End Function
 
 #End Region
@@ -1016,7 +1025,7 @@ Public Class Form1
             If ConvertAltitude(CDbl(BTextBox1.Text), CDbl(BTextBox5.Text)) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf ConvertAltitude(CDbl(BTextBox1.Text), CDbl(BTextBox5.Text)) < 0 Then
+            ElseIf ConvertAltitude(CDbl(BTextBox1.Text), CDbl(BTextBox5.Text)) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -1024,7 +1033,7 @@ Public Class Form1
             If CDbl(BTextBox1.Text) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf CDbl(BTextBox1.Text) < 0 Then
+            ElseIf CDbl(BTextBox1.Text) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -1903,7 +1912,7 @@ Public Class Form1
             If ConvertAltitude(CDbl(ETextBox1.Text), CDbl(ETextBox5.Text)) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf ConvertAltitude(CDbl(ETextBox1.Text), CDbl(ETextBox5.Text)) < 0 Then
+            ElseIf ConvertAltitude(CDbl(ETextBox1.Text), CDbl(ETextBox5.Text)) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -1911,7 +1920,7 @@ Public Class Form1
             If CDbl(ETextBox1.Text) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf CDbl(ETextBox1.Text) < 0 Then
+            ElseIf CDbl(ETextBox1.Text) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -2059,6 +2068,7 @@ Public Class Form1
         If weight <= 8300 Then Vref = 99
 
         LandingDistance = Ey4
+        LandingDistanceZeroFlaps = LDistZeroFlaps(LandingDistance)
         LandingPerformanceFormStatus = 1
 
     End Sub
@@ -2099,6 +2109,15 @@ Public Class Form1
 
 #End Region
 #Region " Landing Equations "
+
+    Function LDistZeroFlaps(ByVal LDist As Double) As Double
+        ' Landing Distance with Zero Flaps as a function of Landing Distance w/ Landing Flaps.  Fit Model from JMP
+        ' RSquare > 0.999
+        LDistZeroFlaps = 216.260201807995 +
+                         1.26418640183346 * LDist +
+                         (LDist - 2650) * ((LDist - 2650) * 0.000106156098803158)
+    End Function
+
 
     Function EAltitude0(ByVal x As Double) As Double
         EAltitude0 = (4.76190476190476 * x) + 1328.57142857143
@@ -2237,7 +2256,7 @@ Public Class Form1
             If ConvertAltitude(CDbl(CTextBox1.Text), CDbl(CTextBox4.Text)) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf ConvertAltitude(CDbl(CTextBox1.Text), CDbl(CTextBox4.Text)) < 0 Then
+            ElseIf ConvertAltitude(CDbl(CTextBox1.Text), CDbl(CTextBox4.Text)) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -2245,7 +2264,7 @@ Public Class Form1
             If CDbl(CTextBox1.Text) > 10000 Then
                 MsgBox("Pressure Altitude is too high")
                 returnValue = False
-            ElseIf CDbl(CTextBox1.Text) < 0 Then
+            ElseIf CDbl(CTextBox1.Text) < -300 Then
                 MsgBox("Pressure Altitude is too low")
                 returnValue = False
             End If
@@ -2310,53 +2329,9 @@ Public Class Form1
 
     Public Sub CCalculateData()
 
-        Dim Cy1, Cy2 As Double
-        Dim altitude As Double = TakeoffPressureAltitude
-        Dim temperature As Double = TakeoffTemperature
-        Dim weight As Double = TakeoffWeight
-        If altitude <= 2000 Then
-            Cy1 = CAltitude0(temperature) - (altitude / 2000) * (-CAltitude2000(temperature) + CAltitude0(temperature))
-        ElseIf altitude <= 4000 Then
-            Cy1 = CAltitude2000(temperature) - ((altitude - 2000) / 2000) * (-CAltitude4000(temperature) + CAltitude2000(temperature))
-        ElseIf altitude <= 6000 Then
-            Cy1 = CAltitude4000(temperature) - ((altitude - 4000) / 2000) * (-CAltitude6000(temperature) + CAltitude4000(temperature))
-        ElseIf altitude <= 8000 Then
-            Cy1 = CAltitude6000(temperature) - ((altitude - 6000) / 2000) * (-CAltitude8000(temperature) + CAltitude6000(temperature))
-        ElseIf altitude <= 10000 Then
-            Cy1 = CAltitude8000(temperature) - ((altitude - 8000) / 2000) * (-CAltitude10000(temperature) + CAltitude8000(temperature))
-        ElseIf altitude <= 12000 Then
-            Cy1 = CAltitude10000(temperature) - ((altitude - 10000) / 2000) * (-CAltitude12000(temperature) + CAltitude10000(temperature))
-        ElseIf altitude <= 14000 Then
-            Cy1 = CAltitude12000(temperature) - ((altitude - 12000) / 2000) * (-CAltitude14000(temperature) + CAltitude12000(temperature))
-        ElseIf altitude <= 16000 Then
-            Cy1 = CAltitude14000(temperature) - ((altitude - 14000) / 2000) * (-CAltitude16000(temperature) + CAltitude14000(temperature))
-        ElseIf altitude <= 18000 Then
-            Cy1 = CAltitude16000(temperature) - ((altitude - 16000) / 2000) * (-CAltitude18000(temperature) + CAltitude16000(temperature))
-        ElseIf altitude <= 20000 Then
-            Cy1 = CAltitude18000(temperature) - ((altitude - 18000) / 2000) * (-CAltitude20000(temperature) + CAltitude18000(temperature))
-        ElseIf altitude <= 22000 Then
-            Cy1 = CAltitude20000(temperature) - ((altitude - 20000) / 2000) * (-CAltitude22000(temperature) + CAltitude20000(temperature))
-        ElseIf altitude <= 24000 Then
-            Cy1 = CAltitude22000(temperature) - ((altitude - 22000) / 2000) * (-CAltitude24000(temperature) + CAltitude22000(temperature))
-        ElseIf altitude <= 26000 Then
-            Cy1 = CAltitude24000(temperature) - ((altitude - 24000) / 2000) * (-CAltitude26000(temperature) + CAltitude24000(temperature))
-        ElseIf altitude <= 28000 Then
-            Cy1 = CAltitude26000(temperature) - ((altitude - 26000) / 2000) * (-CAltitude28000(temperature) + CAltitude26000(temperature))
-        End If
 
-        If Cy1 <= -200 Then
-            Cy2 = CWeightn400(weight) + ((Cy1 + 400) / 200) * (CWeightn200(weight) - CWeightn400(weight))
-        ElseIf Cy1 <= 0 Then
-            Cy2 = CWeightn200(weight) + ((Cy1 + 200) / 200) * (CWeight0(weight) - CWeightn200(weight))
-        ElseIf Cy1 <= 200 Then
-            Cy2 = CWeight0(weight) + ((Cy1 - 0) / 200) * (CWeight200(weight) - CWeight0(weight))
-        ElseIf Cy1 <= 400 Then
-            Cy2 = CWeight200(weight) + ((Cy1 - 200) / 200) * (CWeight400(weight) - CWeight200(weight))
-        ElseIf Cy1 <= 600 Then
-            Cy2 = CWeight400(weight) + ((Cy1 - 400) / 200) * (CWeight600(weight) - CWeight400(weight))
-        End If
-
-        ClimbRate = Cy2
+        ClimbRate = CRate(TakeoffPressureAltitude, TakeoffTemperature, TakeoffWeight)
+        LandingClimbRate = CRate(LandingPressureAltitude, LandingTemperature, LandingWeight)
         ClimbServiceCeiling = CServiceCeiling(ClimbTemperature12, ClimbTemperature18, ClimbTemperature24, TakeoffWeight)
         ClimbPerformanceFormStatus = 1
     End Sub
@@ -2397,89 +2372,19 @@ Public Class Form1
 
 #End Region
 #Region " Climb Equations "
-    Function CAltitude0(ByVal x As Double) As Double
-        CAltitude0 = -0.8065 * x + 476.61
+    Function CRate(ByVal alt As Double, ByVal temp As Double, ByVal weight As Double) As Double
+        ' OEI Climb rate as a function of altitude, temperature and weight.  Fit Model from JMP
+        ' RSquare > 0.99
+        CRate = 2205.44079521975 +
+               -1.71138077552111 * temp + -0.0193103494793562 * alt + -0.16886653686183 * weight +
+               (temp - 8.75) * (temp - 8.75) * -0.0458772736374977 +
+               (temp - 8.75) * (alt - 4125) * -0.000502747642258647 +
+               (alt - 4125) * (alt - 4125) * -0.0000015141759063731 +
+               (alt - 4125) * (weight - 8514.28571428571) * 0.0000009401407885013 +
+               (weight - 8514.28571428571) * (weight - 8514.28571428571) * 0.0000154951729708965
     End Function
 
-    Function CAltitude2000(ByVal x As Double) As Double
-        CAltitude2000 = -0.0004 * x ^ 3 + 0.0107 * x ^ 2 - 1.3145 * x + 463.79
-    End Function
 
-    Function CAltitude4000(ByVal x As Double) As Double
-        CAltitude4000 = -0.0026 * x ^ 3 + 0.0723 * x ^ 2 - 1.2009 * x + 428.69
-    End Function
-
-    Function CAltitude6000(ByVal x As Double) As Double
-        CAltitude6000 = -0.00004 * x ^ 4 - 0.0023 * x ^ 3 + 0.0387 * x ^ 2 - 0.8859 * x + 400.1
-    End Function
-
-    Function CAltitude8000(ByVal x As Double) As Double
-        CAltitude8000 = -0.0002 * x ^ 4 - 0.0008 * x ^ 3 + 0.0392 * x ^ 2 - 1.8088 * x + 367.65
-    End Function
-
-    Function CAltitude10000(ByVal x As Double) As Double
-        CAltitude10000 = -0.0024 * x ^ 3 - 0.1067 * x ^ 2 - 3.0651 * x + 328.66
-    End Function
-
-    Function CAltitude12000(ByVal x As Double) As Double
-        CAltitude12000 = 0.000003 * x ^ 5 + 0.0001 * x ^ 4 - 0.0037 * x ^ 3 - 0.2256 * x ^ 2 - 4.7814 * x + 279.78
-    End Function
-
-    Function CAltitude14000(ByVal x As Double) As Double
-        CAltitude14000 = -0.0000002 * x ^ 6 - 0.00001 * x ^ 5 - 0.00002 * x ^ 4 + 0.0077 * x ^ 3 - 0.075 * x ^ 2 - 8.757 * x + 179.44
-    End Function
-
-    Function CAltitude16000(ByVal x As Double) As Double
-        CAltitude16000 = -0.0000004 * x ^ 5 + 0.000008 * x ^ 4 + 0.0026 * x ^ 3 - 0.0248 * x ^ 2 - 9.0226 * x + 65.402
-    End Function
-
-    Function CAltitude18000(ByVal x As Double) As Double
-        CAltitude18000 = -0.0000003 * x ^ 5 - 0.00007 * x ^ 4 - 0.003 * x ^ 3 - 0.0383 * x ^ 2 - 7.869 * x - 54.753
-    End Function
-
-    Function CAltitude20000(ByVal x As Double) As Double
-        CAltitude20000 = -0.00002 * x ^ 4 - 0.0012 * x ^ 3 - 0.0307 * x ^ 2 - 7.9967 * x - 175.29
-    End Function
-
-    Function CAltitude22000(ByVal x As Double) As Double
-        CAltitude22000 = -0.00000003 * x ^ 6 - 0.000006 * x ^ 5 - 0.0005 * x ^ 4 - 0.0203 * x ^ 3 - 0.3592 * x ^ 2 - 9.8745 * x - 300.01
-    End Function
-
-    Function CAltitude24000(ByVal x As Double) As Double
-        CAltitude24000 = -0.00002 * x ^ 4 - 0.0005 * x ^ 3 + 0.0151 * x ^ 2 - 6.8539 * x - 420.88
-    End Function
-
-    Function CAltitude26000(ByVal x As Double) As Double
-        CAltitude26000 = -0.0932 * x ^ 2 - 12.565 * x - 617.15
-    End Function
-
-    Function CAltitude28000(ByVal x As Double) As Double
-        CAltitude28000 = -0.0348 * x ^ 2 - 6.6551 * x - 596.26
-    End Function
-
-    Function CWeightn400(ByVal x As Double) As Double
-        CWeightn400 = (1.98704092307177E-19 * x ^ 6) + (-0.00000000000000778295454393822 * x ^ 5) + (0.000000000117694309857271 * x ^ 4) + (-0.000000831923034602321 * x ^ 3) + (0.00243201332598426 * x ^ 2) + (0 * x) + (-9022.30488206638)
-    End Function
-
-    Function CWeightn200(ByVal x As Double) As Double
-        CWeightn200 = (2.59627243902836E-19 * x ^ 6) + (-0.0000000000000107240794281611 * x ^ 5) + (0.000000000172270669261917 * x ^ 4) + (-0.000001304611610239 * x ^ 3) + (0.00413213641088455 * x ^ 2) + (0 * x) + (-18720.1205469247)
-    End Function
-
-    Function CWeight0(ByVal x As Double) As Double
-        CWeight0 = (7.62613513315362E-20 * x ^ 6) + (-0.00000000000000329867967112623 * x ^ 5) + (0.0000000000553756061070876 * x ^ 4) + (-0.000000436507088824029 * x ^ 3) + (0.00142568339173214 * x ^ 2) + (0 * x) + (-6199.43622326048)
-    End Function
-
-    Function CWeight200(ByVal x As Double) As Double
-        CWeight200 = (3.77151067792658E-19 * x ^ 6) + (-0.0000000000000159001047019964 * x ^ 5) + (0.000000000260405176522944 * x ^ 4) + (-0.00000200865564196399 * x ^ 3) + (0.00647819196491849 * x ^ 2) + (0 * x) + (-30143.5955517426)
-    End Function
-
-    Function CWeight400(ByVal x As Double) As Double
-        CWeight400 = (-5.87699210524353E-19 * x ^ 6) + (0.0000000000000236394454707762 * x ^ 5) + (-0.000000000369577592371145 * x ^ 4) + (0.00000272737055745436 * x ^ 3) + (-0.00847171089862244 * x ^ 2) + (0 * x) + (39751.0481955255)
-    End Function
-
-    Function CWeight600(ByVal x As Double) As Double
-        CWeight600 = (-2.84481688570485E-19 * x ^ 6) + (0.0000000000000113017603235269 * x ^ 5) + (-0.000000000174525330348439 * x ^ 4) + (0.00000127356646991142 * x ^ 3) + (-0.00392680538131984 * x ^ 2) + (0 * x) + (19290.9000441687)
-    End Function
 
     Function SCWeight7000(ByVal x As Double) As Double
         SCWeight7000 = (0.00000866666666666696 * x ^ 6) + (0.0013666666666667 * x ^ 5) + (0.0803333333333346 * x ^ 4) + (2.18333333333335 * x ^ 3) + (27.0800000000001 * x ^ 2) + (0 * x) + (22400)
@@ -2634,25 +2539,30 @@ Public Class Form1
 
     Public Sub DCalculateData()
         Dim altitude As Double = CruiseAltitude
-        Dim temperature As Double = CruiseTemperature
+        Dim ISA_temperature As Double = CruiseTemperature
+        Dim true_temperature As Double
         Dim weight As Double = TakeoffWeight
         Dim torque, fuelFlow, IAS, TAS As Double
 
+        ' calculate 
+        true_temperature = ConvertISATemperature(ISA_temperature, altitude)
+
+
         If DRadioButton1.Checked Then
-            If temperature <= -20 Then
+            If ISA_temperature <= -20 Then
                 torque = CTorquen20(altitude)
 
-            ElseIf temperature <= -10 Then
-                torque = CTorquen20(altitude) + ((temperature + 20) / 10) * (CTorquen10(altitude) - CTorquen20(altitude))
+            ElseIf ISA_temperature <= -10 Then
+                torque = CTorquen20(altitude) + ((ISA_temperature + 20) / 10) * (CTorquen10(altitude) - CTorquen20(altitude))
 
-            ElseIf temperature <= 0 Then
-                torque = CTorquen10(altitude) + ((temperature + 10) / 10) * (CTorque0(altitude) - CTorquen10(altitude))
+            ElseIf ISA_temperature <= 0 Then
+                torque = CTorquen10(altitude) + ((ISA_temperature + 10) / 10) * (CTorque0(altitude) - CTorquen10(altitude))
 
-            ElseIf temperature <= 10 Then
-                torque = CTorque0(altitude) + ((temperature + 0) / 10) * (CTorque10(altitude) - CTorque0(altitude))
+            ElseIf ISA_temperature <= 10 Then
+                torque = CTorque0(altitude) + ((ISA_temperature + 0) / 10) * (CTorque10(altitude) - CTorque0(altitude))
 
-            ElseIf temperature <= 20 Then
-                torque = CTorque10(altitude) + ((temperature - 10) / 10) * (CTorque20(altitude) - CTorque10(altitude))
+            ElseIf ISA_temperature <= 20 Then
+                torque = CTorque10(altitude) + ((ISA_temperature - 10) / 10) * (CTorque20(altitude) - CTorque10(altitude))
 
             Else
                 torque = CTorque20(altitude)
@@ -2663,26 +2573,26 @@ Public Class Form1
             If torque > 1400 Then
                 torque = 1400
             End If
-            fuelFlow = CFuelFlow(altitude, temperature, torque)
-            IAS = CIAS(altitude, temperature, torque, weight)
-            TAS = CTAS(altitude, temperature, torque, weight)
+            fuelFlow = CFuelFlow(altitude, true_temperature, torque)
+            IAS = CIAS(altitude, true_temperature, torque, weight)
+            TAS = CTAS(altitude, true_temperature, torque, weight)
 
         Else
             IAS = 888888
-            If temperature <= -20 Then
+            If ISA_temperature <= -20 Then
                 torque = RTorquen20(altitude)
 
-            ElseIf temperature <= 10 Then
-                torque = RTorquen20(altitude) + ((temperature + 20) / 10) * (RTorquen10(altitude) - RTorquen20(altitude))
+            ElseIf ISA_temperature <= 10 Then
+                torque = RTorquen20(altitude) + ((ISA_temperature + 20) / 10) * (RTorquen10(altitude) - RTorquen20(altitude))
 
-            ElseIf temperature <= 0 Then
-                torque = RTorquen10(altitude) + ((temperature + 10) / 10) * (RTorque0(altitude) - RTorquen10(altitude))
+            ElseIf ISA_temperature <= 0 Then
+                torque = RTorquen10(altitude) + ((ISA_temperature + 10) / 10) * (RTorque0(altitude) - RTorquen10(altitude))
 
-            ElseIf temperature <= 10 Then
-                torque = RTorque0(altitude) + ((temperature + 0) / 10) * (RTorque10(altitude) - RTorque0(altitude))
+            ElseIf ISA_temperature <= 10 Then
+                torque = RTorque0(altitude) + ((ISA_temperature + 0) / 10) * (RTorque10(altitude) - RTorque0(altitude))
 
-            ElseIf temperature <= 20 Then
-                torque = RTorque10(altitude) + ((temperature - 10) / 10) * (RTorque20(altitude) - RTorque10(altitude))
+            ElseIf ISA_temperature <= 20 Then
+                torque = RTorque10(altitude) + ((ISA_temperature - 10) / 10) * (RTorque20(altitude) - RTorque10(altitude))
 
             Else
                 torque = RTorque20(altitude)
@@ -2693,8 +2603,8 @@ Public Class Form1
             If torque > 1400 Then
                 torque = 1400
             End If
-            fuelFlow = RFuelFlow(altitude, temperature, torque, weight)
-            TAS = RTAS(altitude, temperature, torque, weight)
+            fuelFlow = RFuelFlow(altitude, true_temperature, torque, weight)
+            TAS = RTAS(altitude, true_temperature, torque, weight)
 
         End If
 
@@ -3358,7 +3268,8 @@ Public Class Form1
             FPDep = Mid(planText, InStr(planText, "Dep: ", CompareMethod.Binary) + 5, 4)
             FPDes = Mid(planText, InStr(planText, "Dest: ", CompareMethod.Binary) + 6, 4)
             FPETD = CInt(Mid(planText, InStr(planText, "Z</center></TD><TD><center>", CompareMethod.Binary) - 4, 4))
-            FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
+            FPETA = (CInt(Mid(planText, InStr(planText, "ARRIVALTIME"">", CompareMethod.Binary) + 13, 4)) - CInt(Mid(planText, InStr(planText, "DEPARTTIME"">", CompareMethod.Binary) + 12, 4))) + FPETD
+            ' FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
             If plane(1)(5) = "<" Then
                 airplane = Mid(plane(1), 1, 5)
             Else
@@ -4165,39 +4076,63 @@ Public Class Form1
 
     Private Sub PrintDocument1_PrintPage(sender As Object, e As Printing.PrintPageEventArgs) Handles PrintDocument1.PrintPage
         'TOLD Card
-        e.Graphics.DrawImage(My.Resources.TOLD, 0, 0, 324, 374)
-        e.Graphics.DrawString(CInt(TakeoffPressureAltitude), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 42)
-        e.Graphics.DrawString(Math.Ceiling(TakeoffPower / 10) * 10, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 65)
-        e.Graphics.DrawString(Math.Ceiling(TakeoffDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 89)
-        e.Graphics.DrawString(Math.Ceiling(AccelerateStopDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 113)
-        e.Graphics.DrawString(Math.Ceiling(AccelerateGoDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 137)
-        e.Graphics.DrawString(Math.Ceiling(ClimbRate / 10) * 10, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 160)
-        e.Graphics.DrawString(Math.Ceiling(ClimbServiceCeiling / 500) * 500, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 125, 184)
-        e.Graphics.DrawString(CInt(LandingPressureAltitude), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 208)
-        e.Graphics.DrawString(Math.Ceiling(LandingDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 130, 231)
-        e.Graphics.DrawString(CInt(V1), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 42)
-        e.Graphics.DrawString(CInt(V1), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 65)
-        e.Graphics.DrawString(CInt(V2), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 89)
-        e.Graphics.DrawString("108", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 113)
-        e.Graphics.DrawString(CInt(Veref), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 137)
-        e.Graphics.DrawString(CInt(Vref), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 270, 160)
-        e.Graphics.DrawString(CInt(WBZeroFuelWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 265, 184)
-        e.Graphics.DrawString(CInt(TakeoffWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 265, 208)
-        e.Graphics.DrawString(CInt(LandingWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 265, 231)
+
+        ' Draw blank TOLD card
+        e.Graphics.DrawImage(My.Resources.TOLDLongFusion, 0, 0, 575, 317)
+
+        'header
+        If FPDep <> "999999" Then e.Graphics.DrawString(Microsoft.VisualBasic.Right(FPDep, 3) + "-" + Microsoft.VisualBasic.Right(FPDes, 3), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 15, 15)
+        If FPDate <> "999999" Then e.Graphics.DrawString(FPDate, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 135, 15)
+
+        'first column
+        e.Graphics.DrawString(CInt(TakeoffPressureAltitude), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 47)
+        e.Graphics.DrawString(CInt(WBTotalBaggage).ToString, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 72)
+        e.Graphics.DrawString(CInt(WBTotalPax).ToString, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 97)
+        e.Graphics.DrawString(CInt(WBFuelLoad).ToString, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 122)
+        e.Graphics.DrawString(CInt(WBFuelUsed).ToString, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 147)
+        e.Graphics.DrawString(CInt(CDbl(WBFuelLoad) - CDbl(WBFuelUsed)).ToString, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 105, 172)
+
+        'second column
+        e.Graphics.DrawString(CInt(V1), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 227, 47)
+        e.Graphics.DrawString(CInt(V1), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 227, 72)
+        e.Graphics.DrawString(CInt(V2), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 227, 97)
+        e.Graphics.DrawString("108", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 227, 122)
+        e.Graphics.DrawString(CInt(Veref), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 227, 147)
+
+        'third column
+        e.Graphics.DrawString(Math.Ceiling(TakeoffPower / 10) * 10, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 47)
+        e.Graphics.DrawString(CInt(TakeoffWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 72)
+        e.Graphics.DrawString(Math.Ceiling(TakeoffDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 97)
+        e.Graphics.DrawString(Math.Ceiling(AccelerateStopDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 122)
+        e.Graphics.DrawString(Math.Ceiling(AccelerateGoDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 147)
+        e.Graphics.DrawString(Math.Ceiling(ClimbRate / 10) * 10, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 388, 172)
+        e.Graphics.DrawString(Math.Ceiling(ClimbServiceCeiling / 500) * 500, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 382, 197)
+
+        'fourth column
+        e.Graphics.DrawString(CInt(LandingPressureAltitude), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 47)
+        e.Graphics.DrawString(CInt(LandingWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 72)
+        e.Graphics.DrawString(CInt(Vref), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 97)
+        e.Graphics.DrawString(Math.Ceiling(LandingDistance / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 122)
+        e.Graphics.DrawString(Math.Ceiling(LandingDistanceZeroFlaps / 100) * 100, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 147)
+        e.Graphics.DrawString(Math.Ceiling(LandingClimbRate / 10) * 10, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 525, 172)
+
+        'e.Graphics.DrawString(CInt(WBZeroFuelWeight), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 265, 184)
+
+        ' Cruise Data
         If CruiseAltitude >= 18000 Then
-            e.Graphics.DrawString("FL" + CInt(CruiseAltitude / 100).ToString, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 52, 258)
+            e.Graphics.DrawString("FL" + CInt(CruiseAltitude / 100).ToString, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 73, 225)
         Else
-            e.Graphics.DrawString(CInt(CruiseAltitude), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 52, 258)
+            e.Graphics.DrawString(CInt(CruiseAltitude), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 73, 225)
 
         End If
-        e.Graphics.DrawString(Math.Ceiling(CruiseTorque / 10) * 10, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 119, 258)
-        e.Graphics.DrawString(Math.Ceiling(CruiseFuelFlow / 10) * 10, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 169, 258)
-        If CruiseIndicatedAirspeed <> 888888 Then e.Graphics.DrawString(CInt(CruiseIndicatedAirspeed), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 225, 258)
-        If CruiseIndicatedAirspeed = 888888 Then e.Graphics.DrawString("NA", New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 225, 258)
-        e.Graphics.DrawString(CInt(CruiseTrueAirspeed), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 275, 258)
-        If FPDep <> "999999" Then e.Graphics.DrawString(Microsoft.VisualBasic.Right(FPDep, 3) + "-" + Microsoft.VisualBasic.Right(FPDes, 3), New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 25, 7)
-        If FPDate <> "999999" Then e.Graphics.DrawString(FPDate, New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 122, 7)
-        'Graph
+        e.Graphics.DrawString(Math.Ceiling(CruiseTorque / 10) * 10, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 181, 225)
+        e.Graphics.DrawString(Math.Ceiling(CruiseFuelFlow / 10) * 10, New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 278, 225)
+        If CruiseIndicatedAirspeed <> 888888 Then e.Graphics.DrawString(CInt(CruiseIndicatedAirspeed), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 381, 225)
+        If CruiseIndicatedAirspeed = 888888 Then e.Graphics.DrawString("NA", New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 381, 225)
+        e.Graphics.DrawString(CInt(CruiseTrueAirspeed), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, 488, 225)
+
+
+        'W&B Graph
         Dim minY As Integer = 802
         Dim maxY As Integer = 413
         Dim minX As Integer = 76
@@ -4224,23 +4159,18 @@ Public Class Form1
         e.Graphics.DrawString("Ramp Weight", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 570, 575)
         e.Graphics.DrawString("Takeoff Weight", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 570, 605)
         e.Graphics.DrawString("Landing Weight", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 570, 635)
+
         'Data
-        If FltPlanFormStatus = 1 Then
-            e.Graphics.DrawString("Departure Metar:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 5)
-            e.Graphics.DrawString(FPMetars(0), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, New RectangleF(330, 15, 380, 100))
-            e.Graphics.DrawString("Arrival Metar:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 115)
-            e.Graphics.DrawString(FPMetars(1), New Font("Comic Sans MS", 9, FontStyle.Regular), Brushes.Black, New RectangleF(330, 125, 380, 100))
-        End If
-        e.Graphics.DrawString("Fuel Load:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 225)
-        e.Graphics.DrawString(CInt(WBFuelLoad).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 410, 225)
-        e.Graphics.DrawString("Fuel Use:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 250)
-        e.Graphics.DrawString(CInt(WBFuelUsed).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 400, 250)
-        e.Graphics.DrawString("Fuel Remaining:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 275)
-        e.Graphics.DrawString(CInt(CDbl(WBFuelLoad) - CDbl(WBFuelUsed)).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 440, 275)
-        e.Graphics.DrawString("Cargo WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 325)
-        e.Graphics.DrawString(CInt(WBTotalBaggage).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 420, 325)
-        e.Graphics.DrawString("Passenger WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 350)
-        e.Graphics.DrawString(CInt(WBTotalPax).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 450, 350)
+        'e.Graphics.DrawString("Fuel Load:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 225)
+        'e.Graphics.DrawString(CInt(WBFuelLoad).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 410, 225)
+        'e.Graphics.DrawString("Fuel Use:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 250)
+        'e.Graphics.DrawString(CInt(WBFuelUsed).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 400, 250)
+        'e.Graphics.DrawString("Fuel Remaining:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 275)
+        'e.Graphics.DrawString(CInt(CDbl(WBFuelLoad) - CDbl(WBFuelUsed)).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 440, 275)
+        'e.Graphics.DrawString("Cargo WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 325)
+        'e.Graphics.DrawString(CInt(WBTotalBaggage).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 420, 325)
+        'e.Graphics.DrawString("Passenger WGT:", New Font("Comic Sans MS", 10, FontStyle.Bold), Brushes.Black, 330, 350)
+        'e.Graphics.DrawString(CInt(WBTotalPax).ToString + " Lbs", New Font("Comic Sans MS", 10, FontStyle.Regular), Brushes.Black, 450, 350)
 
     End Sub
 
@@ -4361,7 +4291,8 @@ Public Class Form1
             FPDep = Mid(planText, InStr(planText, "Dep: ", CompareMethod.Binary) + 5, 4)
             FPDes = Mid(planText, InStr(planText, "Dest: ", CompareMethod.Binary) + 6, 4)
             FPETD = CInt(Mid(planText, InStr(planText, "Z</center></TD><TD><center>", CompareMethod.Binary) - 4, 4))
-            FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
+            ' FPETA = (CInt(Mid(planText, InStr(planText, "Arr: ", CompareMethod.Binary) + 5, 4)) - CInt(Mid(planText, InStr(planText, "Dept: ", CompareMethod.Binary) + 6, 4))) + FPETD
+            FPETA = (CInt(Mid(planText, InStr(planText, "ARRIVALTIME"">", CompareMethod.Binary) + 13, 4)) - CInt(Mid(planText, InStr(planText, "DEPARTTIME"">", CompareMethod.Binary) + 12, 4))) + FPETD
             If plane(1)(5) = "<" Then
                 airplane = Mid(plane(1), 1, 5)
             Else
